@@ -15,6 +15,7 @@ package dao
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/TencentBlueKing/bk-bscp/internal/dal/gen"
 	"github.com/TencentBlueKing/bk-bscp/internal/dal/utils"
@@ -69,6 +70,8 @@ type Kv interface {
 	// ListAllByAppIDWithTx list all Kv by appID using a transaction
 	ListAllByAppIDWithTx(kit *kit.Kit, tx *gen.QueryTx, appID uint32, bizID uint32,
 		kvState []string) ([]*table.Kv, error)
+	// ListExpiredCertificate 获取已过期的证书配置项列表
+	ListExpiredCertificate(kit *kit.Kit, bizID, appID uint32) ([]*table.Kv, error)
 }
 
 var _ Kv = new(kvDao)
@@ -77,6 +80,24 @@ type kvDao struct {
 	genQ     *gen.Query
 	idGen    IDGenInterface
 	auditDao AuditDao
+}
+
+// ListExpiredCertificate 获取已过期的证书配置项列表
+func (dao *kvDao) ListExpiredCertificate(kit *kit.Kit, bizID uint32, appID uint32) ([]*table.Kv, error) {
+	m := dao.genQ.Kv
+
+	kvStateArr := []string{
+		string(table.KvStateUnchange),
+		string(table.KvStateAdd),
+		string(table.KvStateRevise),
+	}
+
+	return dao.genQ.Kv.WithContext(kit.Ctx).Where(
+		m.BizID.Eq(bizID), m.AppID.Eq(appID),
+		m.SecretType.Eq(string(table.SecretTypeCertificate)),
+		m.KvState.In(kvStateArr...),
+		m.CertificateExpirationDate.Lte(time.Now().UTC())).
+		Find()
 }
 
 // FetchKeysExcluding 获取指定keys后排除的keys
