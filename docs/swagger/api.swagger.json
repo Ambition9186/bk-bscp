@@ -9979,6 +9979,10 @@
           "type": "string",
           "format": "uint64",
           "description": "文件大小"
+        },
+        "charset": {
+          "type": "string",
+          "description": "文件编码"
         }
       },
       "description": "参数 sign和byte_size 需通过上传文件的接口返回，curl -X PUT /api/v1/biz/{biz_id}/content/upload -H 'Content-Type: text/plain' -d '文件内容'",
@@ -10159,6 +10163,10 @@
         "secretHidden": {
           "type": "boolean",
           "description": "是否隐藏值：是=true，否=false"
+        },
+        "certificateExpirationDate": {
+          "type": "string",
+          "description": "证书过期时间"
         }
       },
       "description": "请求参数",
@@ -10249,6 +10257,10 @@
             "format": "int64"
           },
           "description": "模板套餐ID，需要添加至某个套餐中"
+        },
+        "charset": {
+          "type": "string",
+          "description": "文件编码"
         }
       },
       "description": "请求参数",
@@ -10314,6 +10326,10 @@
           "type": "string",
           "format": "uint64",
           "description": "文件大小"
+        },
+        "charset": {
+          "type": "string",
+          "description": "文件编码"
         }
       },
       "description": "请求参数",
@@ -11241,6 +11257,10 @@
           "type": "string",
           "format": "uint64",
           "description": "文件大小"
+        },
+        "charset": {
+          "type": "string",
+          "description": "文件编码"
         }
       },
       "description": "参数 sign和byte_size 需通过上传文件的接口返回，curl -X PUT /api/v1/biz/{biz_id}/content/upload -H 'Content-Type: text/plain' -d '文件内容'",
@@ -11480,6 +11500,10 @@
           "type": "integer",
           "format": "int64",
           "description": "模板文件版本ID"
+        },
+        "charset": {
+          "type": "string",
+          "description": "文件编码"
         }
       },
       "description": "请求参数",
@@ -12818,6 +12842,9 @@
         },
         "permission": {
           "$ref": "#/definitions/pbciFilePermission"
+        },
+        "charset": {
+          "type": "string"
         }
       },
       "title": "ConfigItemSpec source resource reference: pkg/dal/table/config_item.go"
@@ -13529,6 +13556,10 @@
         "md5": {
           "type": "string",
           "description": "文件md5"
+        },
+        "charset": {
+          "type": "string",
+          "description": "文件编码"
         }
       }
     },
@@ -13584,6 +13615,10 @@
         "secretHidden": {
           "type": "boolean",
           "description": "是否隐藏值：是=true，否=false"
+        },
+        "certificateExpirationDate": {
+          "type": "string",
+          "description": "证书过期时间"
         }
       }
     },
@@ -13654,6 +13689,10 @@
         "md5": {
           "type": "string",
           "description": "文件MD5"
+        },
+        "charset": {
+          "type": "string",
+          "description": "文件编码"
         }
       }
     },
@@ -14383,6 +14422,10 @@
         "isLatest": {
           "type": "boolean",
           "description": "是否最新版本：是=true，否=false"
+        },
+        "charset": {
+          "type": "string",
+          "description": "文件编码"
         }
       }
     },
@@ -15867,6 +15910,10 @@
         "secretHidden": {
           "type": "boolean",
           "description": "是否隐藏值：是=true，否=false"
+        },
+        "certificateExpirationDate": {
+          "type": "string",
+          "description": "证书过期时间"
         }
       },
       "title": "KvSpec source resource reference: pkg/dal/table/kvs.go"
@@ -16727,6 +16774,9 @@
         },
         "contentSpec": {
           "$ref": "#/definitions/pbcontentContentSpec"
+        },
+        "charset": {
+          "type": "string"
         }
       },
       "title": "TemplateRevisionSpec source resource reference: pkg/dal/table/template_revision.go"

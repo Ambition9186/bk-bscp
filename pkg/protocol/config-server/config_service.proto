@@ -1495,6 +1495,7 @@ message CreateConfigItemReq {
   string privilege = 10 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "文件权限" }];
   string sign = 11 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "文件sha256" }];
   uint64 byte_size = 12 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "文件大小" }];
+  string charset = 13 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "文件编码" }];
 }
 
 message BatchUpsertConfigItemsReq {
@@ -1514,6 +1515,7 @@ message BatchUpsertConfigItemsReq {
     string sign = 9 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "文件sha256" }];
     uint64 byte_size = 10 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "文件大小" }];
     string md5 = 11 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "文件md5" }];
+    string charset = 12 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "文件编码" }];
   }
   uint32 biz_id = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "业务ID" }];
   uint32 app_id = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "服务ID" }];
@@ -1569,6 +1571,7 @@ message UpdateConfigItemReq {
   string privilege = 11 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "文件权限" }];
   string sign = 12 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "文件sha256" }];
   uint64 byte_size = 13 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "文件大小" }];
+  string charset = 14 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "文件编码" }];
 }
 
 message UpdateConfigItemResp {}
@@ -2196,6 +2199,7 @@ message CreateTemplateReq {
   repeated uint32 template_set_ids = 15 [
     (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "模板套餐ID，需要添加至某个套餐中" }
   ];
+  string charset = 16 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "文件编码" }];
 }
 
 message CreateTemplateResp {
@@ -2301,6 +2305,7 @@ message BatchUpsertTemplatesReq {
     string sign = 10 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "文件sha256" }];
     uint64 byte_size = 11 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "文件大小" }];
     string md5 = 12 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "文件MD5" }];
+    string charset = 13 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "文件编码" }];
   }
   uint32 biz_id = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "业务ID" }];
   uint32 template_space_id = 2
@@ -2504,6 +2509,7 @@ message CreateTemplateRevisionReq {
       [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "文件权限", example: "644" }];
   string sign = 13 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "文件sha256" }];
   uint64 byte_size = 14 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "文件大小" }];
+  string charset = 15 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "文件编码" }];
 }
 
 message CreateTemplateRevisionResp {
@@ -2555,6 +2561,7 @@ message UpdateTemplateRevisionReq {
   uint64 byte_size = 14 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "文件大小" }];
   uint32 template_revision_id = 15
       [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "模板文件版本ID" }];
+  string charset = 16 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "文件编码" }];
 }
 
 message UpdateTemplateRevisionResp {
@@ -2622,6 +2629,7 @@ message GetTemplateRevisionResp {
     bool is_latest = 17 [
       (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "是否最新版本：是=true，否=false" }
     ];
+    string charset = 18 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "文件编码" }];
   }
   TemplateRevision detail = 1;
 }
@@ -3611,7 +3619,8 @@ message CreateKvReq {
   }];
   bool secret_hidden = 8
       [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "是否隐藏值：是=true，否=false" }];
-  string certificate_expiration_date = 9 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "证书过期时间" }];
+  string certificate_expiration_date = 9
+      [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "证书过期时间" }];
 }
 
 message CreateKvResp {
@@ -3725,7 +3734,8 @@ message BatchUpsertKvsReq {
     bool secret_hidden = 6 [
       (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "是否隐藏值：是=true，否=false" }
     ];
-    string certificate_expiration_date = 7 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "证书过期时间" }];
+    string certificate_expiration_date = 7
+        [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "证书过期时间" }];
   }
   uint32 biz_id = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "业务ID" }];
   uint32 app_id = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "服务ID" }];
