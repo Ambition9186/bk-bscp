@@ -21,6 +21,7 @@ import (
 	"github.com/TencentBlueKing/bk-bscp/internal/dal/gen"
 	"github.com/TencentBlueKing/bk-bscp/pkg/criteria/errf"
 	"github.com/TencentBlueKing/bk-bscp/pkg/dal/table"
+	"github.com/TencentBlueKing/bk-bscp/pkg/i18n"
 	"github.com/TencentBlueKing/bk-bscp/pkg/kit"
 )
 
@@ -195,18 +196,23 @@ func (dao *commitDao) ListAppLatestCommits(kit *kit.Kit, bizID, appID uint32) ([
 // GetLatestCommit get config item's latest commit.
 func (dao *commitDao) GetLatestCommit(kit *kit.Kit, bizID, appID, configItemID uint32) (*table.Commit, error) {
 	if bizID == 0 {
-		return nil, errf.New(errf.InvalidParameter, "biz id is 0")
+		return nil, errf.New(errf.InvalidParameter, i18n.T(kit, "biz id is 0"))
 	}
 	if appID == 0 {
-		return nil, errf.New(errf.InvalidParameter, "app id is 0")
+		return nil, errf.New(errf.InvalidParameter, i18n.T(kit, "app id is 0"))
 	}
 	if configItemID == 0 {
-		return nil, errf.New(errf.InvalidParameter, "config item id is 0")
+		return nil, errf.New(errf.InvalidParameter, i18n.T(kit, "config item id is 0"))
 	}
 	m := dao.genQ.Commit
-	return m.WithContext(kit.Ctx).
+	resp, err := m.WithContext(kit.Ctx).
 		Where(m.ConfigItemID.Eq(configItemID), m.AppID.Eq(appID), m.BizID.Eq(bizID)).
 		Order(m.ID.Desc()).First()
+	if err != nil {
+		return nil, errf.New(errf.DBOpFailed,
+			i18n.T(kit, "get config item's latest commit failed, err: %v", err))
+	}
+	return resp, nil
 }
 
 // validateAttachmentResExist validate if attachment resource exists before creating commit.

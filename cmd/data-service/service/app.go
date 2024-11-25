@@ -134,10 +134,10 @@ func (s *Service) checkUpdateAppDataType(kt *kit.Kit, req *pbds.UpdateAppReq, ap
 
 	// 获取所有的kv
 	kvState := []string{
-		string(table.KvStateAdd),
-		string(table.KvStateRevise),
-		string(table.KvStateUnchange),
-		string(table.KvStateDelete),
+		string(table.StateAdd),
+		string(table.StateRevise),
+		string(table.StateUnchange),
+		string(table.StateDelete),
 	}
 	kvList, err := s.dao.Kv().ListAllByAppID(kt, app.ID, req.BizId, kvState)
 	if err != nil {

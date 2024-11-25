@@ -18,6 +18,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"gopkg.in/yaml.v3"
 
@@ -29,22 +30,23 @@ import (
 // Kv defines a basic kv
 type Kv struct {
 	// ID is an auto-increased value, which is a unique identity of a kv.
-	ID          uint32        `json:"id" gorm:"primaryKey"`
-	KvState     KvState       `json:"kv_state" gorm:"column:kv_state"`
-	Spec        *KvSpec       `json:"spec" gorm:"embedded"`
-	Attachment  *KvAttachment `json:"attachment" gorm:"embedded"`
-	Revision    *Revision     `json:"revision" gorm:"embedded"`
-	ContentSpec *ContentSpec  `json:"content_spec" gorm:"embedded"`
+	ID          uint32          `json:"id" gorm:"primaryKey"`
+	KvState     ConfigItemState `json:"kv_state" gorm:"column:kv_state"`
+	Spec        *KvSpec         `json:"spec" gorm:"embedded"`
+	Attachment  *KvAttachment   `json:"attachment" gorm:"embedded"`
+	Revision    *Revision       `json:"revision" gorm:"embedded"`
+	ContentSpec *ContentSpec    `json:"content_spec" gorm:"embedded"`
 }
 
 // KvSpec is kv specific which is defined by user.
 type KvSpec struct {
-	Key          string     `json:"key" gorm:"column:key"`
-	Memo         string     `json:"memo" gorm:"column:memo"`
-	KvType       DataType   `json:"kv_type" gorm:"column:kv_type"`
-	Version      uint32     `json:"version" gorm:"column:version"`
-	SecretType   SecretType `json:"secret_type" gorm:"column:secret_type"`
-	SecretHidden bool       `json:"secret_hidden" gorm:"column:secret_hidden"`
+	Key                       string     `json:"key" gorm:"column:key"`
+	Memo                      string     `json:"memo" gorm:"column:memo"`
+	KvType                    DataType   `json:"kv_type" gorm:"column:kv_type"`
+	Version                   uint32     `json:"version" gorm:"column:version"`
+	SecretType                SecretType `json:"secret_type" gorm:"column:secret_type"`
+	SecretHidden              bool       `json:"secret_hidden" gorm:"column:secret_hidden"`
+	CertificateExpirationDate *time.Time `json:"certificate_expiration_date" gorm:"column:certificate_expiration_date"`
 }
 
 // KvAttachment is a kv attachment
@@ -80,7 +82,7 @@ func (k Kv) ValidateCreate(kit *kit.Kit) error {
 		return errors.New("id should not be set")
 	}
 
-	if k.KvState != KvStateAdd {
+	if k.KvState != StateAdd {
 		return errors.New("KvState is not set to Add")
 
 	}
@@ -260,32 +262,32 @@ func (k DataType) ValidateValue(value string) error {
 	}
 }
 
-// KvState ....
-type KvState string
+// ConfigItemState 配置项状态
+type ConfigItemState string
 
 const (
-	// KvStateAdd 增加
-	KvStateAdd KvState = "ADD"
-	// KvStateDelete 删除
-	KvStateDelete KvState = "DELETE"
-	// KvStateRevise 修改
-	KvStateRevise KvState = "REVISE"
-	// KvStateUnchange 不变
-	KvStateUnchange KvState = "UNCHANGE"
+	// StateAdd 增加
+	StateAdd ConfigItemState = "ADD"
+	// StateDelete 删除
+	StateDelete ConfigItemState = "DELETE"
+	// StateRevise 修改
+	StateRevise ConfigItemState = "REVISE"
+	// StateUnchange 不变
+	StateUnchange ConfigItemState = "UNCHANGE"
 )
 
-// String get string value of KvState
-func (k KvState) String() string {
+// String get string value of config item state
+func (k ConfigItemState) String() string {
 	return string(k)
 }
 
-// Validate validate kv state is valid or not.
-func (k KvState) Validate() error {
+// Validate validate config item state is valid or not.
+func (k ConfigItemState) Validate() error {
 	switch k {
-	case KvStateAdd, KvStateDelete, KvStateRevise, KvStateUnchange:
+	case StateAdd, StateDelete, StateRevise, StateUnchange:
 		return nil
 	default:
-		return errors.New("invalid kv state")
+		return errors.New("invalid config item state")
 	}
 }
 

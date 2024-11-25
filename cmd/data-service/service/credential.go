@@ -290,9 +290,9 @@ func (s *Service) getKVConfigItems(kt *kit.Kit, appID, bizID uint32, scope, sear
 	}
 	// 获取未删除的KV
 	kvState := []string{
-		string(table.KvStateAdd),
-		string(table.KvStateRevise),
-		string(table.KvStateUnchange),
+		string(table.StateAdd),
+		string(table.StateRevise),
+		string(table.StateUnchange),
 	}
 	kv, err := s.dao.Kv().ListAllByAppID(kt, appID, bizID, kvState)
 	if err != nil {

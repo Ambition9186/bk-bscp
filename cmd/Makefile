@@ -1,13 +1,13 @@
 all:
-	@cd api-server && make
-	@cd config-server && make
+	# @cd api-server && make
+	# @cd config-server && make
 	@cd data-service && make
-	@cd feed-server && make
-	@cd auth-server && make
-	@cd cache-service && make
-	@cd vault-server && make
-	@cd feed-proxy && make
-	@cd ui && make
+	# @cd feed-server && make
+	# @cd auth-server && make
+	# @cd cache-service && make
+	# @cd vault-server && make
+	# @cd feed-proxy && make
+	# @cd ui && make
 
 ui:
 	@cd ui && make

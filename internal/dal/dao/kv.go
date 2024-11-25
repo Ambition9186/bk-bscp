@@ -57,7 +57,7 @@ type Kv interface {
 	GetCount(kit *kit.Kit, bizID uint32, appId []uint32) ([]*table.ListConfigItemCounts, error)
 	// UpdateSelectedKVStates updates the states of selected kv pairs using a transaction
 	UpdateSelectedKVStates(kit *kit.Kit, tx *gen.QueryTx, bizID, appID uint32, targetKVStates []string,
-		newKVStates table.KvState) error
+		newKVStates table.ConfigItemState) error
 	// DeleteByStateWithTx deletes kv pairs with a specific state using a transaction
 	DeleteByStateWithTx(kit *kit.Kit, tx *gen.QueryTx, kv *table.Kv) error
 	// FetchIDsExcluding 获取指定ID后排除的ID
@@ -88,7 +88,7 @@ func (dao *kvDao) FetchKeysExcluding(kit *kit.Kit, bizID uint32, appID uint32, k
 	if err := q.Select(m.Key).
 		Where(m.BizID.Eq(bizID), m.AppID.Eq(appID),
 			m.Key.NotIn(keys...),
-			m.KvState.Eq(table.KvStateDelete.String())).
+			m.KvState.Eq(table.StateDelete.String())).
 		Pluck(m.Key, &result); err != nil {
 		return nil, err
 	}
@@ -117,7 +117,7 @@ func (dao *kvDao) ListAllByAppIDWithTx(kit *kit.Kit, tx *gen.QueryTx, appID uint
 func (dao *kvDao) CountNumberUnDeleted(kit *kit.Kit, bizID uint32, opt *types.ListKvOption) (int64, error) {
 	m := dao.genQ.Kv
 	q := dao.genQ.Kv.WithContext(kit.Ctx).Where(m.BizID.Eq(bizID), m.AppID.Eq(opt.AppID),
-		m.KvState.Neq(table.KvStateDelete.String()))
+		m.KvState.Neq(table.StateDelete.String()))
 	if opt.SearchKey != "" {
 		searchKey := "(?i)" + opt.SearchKey
 		q = q.Where(q.Where(q.Or(m.Key.Regexp(searchKey)).Or(m.Creator.Regexp(searchKey)).Or(
@@ -171,7 +171,7 @@ func (dao *kvDao) UpdateWithTx(kit *kit.Kit, tx *gen.QueryTx, kv *table.Kv) erro
 	ad := dao.auditDao.DecoratorV2(kit, kv.Attachment.BizID).PrepareUpdate(kv, oldOne)
 
 	_, err = q.Where(m.BizID.Eq(kv.Attachment.BizID), m.ID.Eq(kv.ID)).Select(m.Version, m.UpdatedAt,
-		m.Reviser, m.KvState, m.Signature, m.Md5, m.ByteSize).Updates(kv)
+		m.Reviser, m.KvState, m.Signature, m.Md5, m.ByteSize, m.CertificateExpirationDate).Updates(kv)
 	if err != nil {
 		return err
 	}
@@ -234,8 +234,10 @@ func (dao *kvDao) Update(kit *kit.Kit, kv *table.Kv) error {
 	// 多个使用事务处理
 	updateTx := func(tx *gen.Query) error {
 		q = tx.Kv.WithContext(kit.Ctx)
-		if _, e := q.Where(m.BizID.Eq(kv.Attachment.BizID), m.ID.Eq(kv.ID)).Select(m.Version, m.UpdatedAt,
-			m.Reviser, m.KvState, m.Signature, m.Md5, m.ByteSize, m.Memo, m.SecretHidden).Updates(kv); e != nil {
+		if _, e := q.Where(m.BizID.Eq(kv.Attachment.BizID), m.ID.Eq(kv.ID)).
+			Select(m.Version, m.UpdatedAt, m.Reviser, m.KvState, m.Signature, m.Md5, m.ByteSize,
+				m.Memo, m.SecretHidden, m.CertificateExpirationDate).
+			Updates(kv); e != nil {
 			return e
 		}
 
@@ -263,7 +265,8 @@ func (dao *kvDao) List(kit *kit.Kit, opt *types.ListKvOption) ([]*table.Kv, int6
 	}
 
 	orderStr := "CASE WHEN kv_state = 'ADD' THEN 1 WHEN kv_state = 'REVISE' THEN 2 " +
-		"WHEN kv_state = 'DELETE' THEN 3 WHEN kv_state = 'UNCHANGE' THEN 4 END,`key` asc"
+		"WHEN kv_state = 'DELETE' THEN 3 WHEN kv_state = 'UNCHANGE' THEN 4 END," +
+		"certificate_expiration_date IS NULL, certificate_expiration_date asc, `key` asc"
 
 	if opt.Page.Order == types.Descending {
 		q = q.Order(orderCol.Desc())
@@ -501,7 +504,7 @@ func (dao *kvDao) BatchUpdateWithTx(kit *kit.Kit, tx *gen.QueryTx, kvs []*table.
 
 // UpdateSelectedKVStates 批量更新kv状态
 func (dao *kvDao) UpdateSelectedKVStates(kit *kit.Kit, tx *gen.QueryTx, bizID, appID uint32,
-	targetKVStates []string, newKVStates table.KvState) error {
+	targetKVStates []string, newKVStates table.ConfigItemState) error {
 
 	if bizID <= 0 {
 		return errors.New("biz id should be set")
@@ -552,9 +555,9 @@ func (dao *kvDao) GetCount(kit *kit.Kit, bizID uint32, appId []uint32) ([]*table
 	configItem := make([]*table.ListConfigItemCounts, 0)
 
 	kvState := []string{
-		string(table.KvStateAdd),
-		string(table.KvStateRevise),
-		string(table.KvStateUnchange),
+		string(table.StateAdd),
+		string(table.StateRevise),
+		string(table.StateUnchange),
 	}
 	m := dao.genQ.Kv
 	q := dao.genQ.Kv.WithContext(kit.Ctx)

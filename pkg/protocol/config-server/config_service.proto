@@ -1530,6 +1530,9 @@ message BatchUpsertConfigItemsReq {
     pbatb.TemplateBinding template_binding = 2;
   }
   repeated TemplateBinding bindings = 6;
+  bool from_other_ver = 7 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "从其他版本导入的数据：是=true，否=false",
+  }];
 }
 
 message BatchUpsertConfigItemsResp {
@@ -3611,6 +3614,8 @@ message CreateKvReq {
   }];
   bool secret_hidden = 8
       [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "是否隐藏值：是=true，否=false" }];
+  string certificate_expiration_date = 9
+      [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "证书过期时间" }];
 }
 
 message CreateKvResp {
@@ -3724,12 +3729,17 @@ message BatchUpsertKvsReq {
     bool secret_hidden = 6 [
       (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "是否隐藏值：是=true，否=false" }
     ];
+    string certificate_expiration_date = 7
+        [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "证书过期时间" }];
   }
   uint32 biz_id = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "业务ID" }];
   uint32 app_id = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "服务ID" }];
   repeated Kv kvs = 3;
   bool replace_all = 4
       [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "是否清空：是=true，否=false" }];
+  bool from_other_ver = 5 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "从其他版本导入的数据：是=true，否=false",
+  }];
 }
 
 message BatchUpsertKvsResp {

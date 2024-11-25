@@ -40,8 +40,7 @@ import (
 )
 
 // CreateRelease create release.
-//
-//nolint:funlen
+// nolint:funlen
 func (s *Service) CreateRelease(ctx context.Context, req *pbds.CreateReleaseReq) (*pbds.CreateResp, error) {
 	grpcKit := kit.FromGrpcContext(ctx)
 
@@ -878,9 +877,9 @@ func (s *Service) doKvOperations(kt *kit.Kit, tx *gen.QueryTx, appID, bizID, rel
 func (s *Service) genCreateKv(kt *kit.Kit, bizID, appID uint32) ([]*pbkv.Kv, error) {
 
 	kvState := []string{
-		string(table.KvStateAdd),
-		string(table.KvStateRevise),
-		string(table.KvStateUnchange),
+		string(table.StateAdd),
+		string(table.StateRevise),
+		string(table.StateUnchange),
 	}
 	details, err := s.dao.Kv().ListAllByAppID(kt, appID, bizID, kvState)
 	if err != nil {
@@ -934,7 +933,7 @@ func (s *Service) doBatchReleasedVault(kt *kit.Kit, kvs []*pbkv.Kv, releaseId ui
 // cleanUpKV 创建版本后更新kv 状态
 func (s *Service) cleanUpKV(kt *kit.Kit, tx *gen.QueryTx, bizID, appID uint32) error {
 
-	result, err := s.dao.Kv().ListAllByAppID(kt, appID, bizID, []string{string(table.KvStateDelete)})
+	result, err := s.dao.Kv().ListAllByAppID(kt, appID, bizID, []string{string(table.StateDelete)})
 	if err != nil {
 		logs.Errorf("delete kv failed, err: %v, rid: %s", err, kt.Rid)
 		return err
@@ -942,7 +941,7 @@ func (s *Service) cleanUpKV(kt *kit.Kit, tx *gen.QueryTx, bizID, appID uint32) e
 
 	if len(result) > 0 {
 		deleteKv := &table.Kv{
-			KvState: table.KvStateDelete,
+			KvState: table.StateDelete,
 			Attachment: &table.KvAttachment{
 				BizID: bizID,
 				AppID: appID,
@@ -955,10 +954,10 @@ func (s *Service) cleanUpKV(kt *kit.Kit, tx *gen.QueryTx, bizID, appID uint32) e
 	}
 
 	targetKVStates := []string{
-		string(table.KvStateAdd),
-		string(table.KvStateRevise),
+		string(table.StateAdd),
+		string(table.StateRevise),
 	}
-	if e := s.dao.Kv().UpdateSelectedKVStates(kt, tx, bizID, appID, targetKVStates, table.KvStateUnchange); e != nil {
+	if e := s.dao.Kv().UpdateSelectedKVStates(kt, tx, bizID, appID, targetKVStates, table.StateUnchange); e != nil {
 		logs.Errorf("delete kv failed, err: %v, rid: %s", e, kt.Rid)
 		return e
 	}
