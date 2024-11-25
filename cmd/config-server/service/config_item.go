@@ -20,6 +20,7 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/TencentBlueKing/bk-bscp/pkg/criteria/errf"
+	"github.com/TencentBlueKing/bk-bscp/pkg/dal/table"
 	"github.com/TencentBlueKing/bk-bscp/pkg/i18n"
 	"github.com/TencentBlueKing/bk-bscp/pkg/iam/meta"
 	"github.com/TencentBlueKing/bk-bscp/pkg/kit"
@@ -68,6 +69,7 @@ func (s *Service) CreateConfigItem(ctx context.Context, req *pbcs.CreateConfigIt
 				UserGroup: req.UserGroup,
 				Privilege: req.Privilege,
 			},
+			FileState: table.StateAdd.String(),
 		},
 		ContentSpec: &pbcontent.ContentSpec{
 			Signature: req.Sign,
@@ -140,12 +142,13 @@ func (s *Service) BatchUpsertConfigItems(ctx context.Context, req *pbcs.BatchUps
 	}
 
 	buReq := &pbds.BatchUpsertConfigItemsReq{
-		BizId:      req.BizId,
-		AppId:      req.AppId,
-		Items:      items,
-		ReplaceAll: req.ReplaceAll,
-		Variables:  req.GetVariables(),
-		Bindings:   bindings,
+		BizId:        req.BizId,
+		AppId:        req.AppId,
+		Items:        items,
+		ReplaceAll:   req.ReplaceAll,
+		Variables:    req.GetVariables(),
+		Bindings:     bindings,
+		FromOtherVer: req.GetFromOtherVer(),
 	}
 	batchUpsertConfigResp, e := s.client.DS.BatchUpsertConfigItems(grpcKit.RpcCtx(), buReq)
 	if e != nil {
@@ -173,6 +176,19 @@ func (s *Service) UpdateConfigItem(ctx context.Context, req *pbcs.UpdateConfigIt
 		return nil, err
 	}
 
+	// 2. check if content sign changed,if changed,create content and commit
+	// 2.1. get latest commit and compare content sign
+	glcReq := &pbds.GetLatestCommitReq{
+		BizId:        req.BizId,
+		AppId:        req.AppId,
+		ConfigItemId: req.Id,
+	}
+	glcResp, err := s.client.DS.GetLatestCommit(grpcKit.RpcCtx(), glcReq)
+	if err != nil {
+		logs.Errorf("get config item latest commit failed, err: %v, rid: %s", err, grpcKit.Rid)
+		return nil, err
+	}
+
 	// 1. update config_item
 	r := &pbds.UpdateConfigItemReq{
 		Id: req.Id,
@@ -191,24 +207,18 @@ func (s *Service) UpdateConfigItem(ctx context.Context, req *pbcs.UpdateConfigIt
 				UserGroup: req.UserGroup,
 				Privilege: req.Privilege,
 			},
+			FileState: func() string {
+				// 判断文件状态
+				if glcResp.Spec.Content.Signature != req.Sign {
+					return table.StateRevise.String()
+				}
+				return table.StateUnchange.String()
+			}(),
 		},
 	}
 	_, err = s.client.DS.UpdateConfigItem(grpcKit.RpcCtx(), r)
 	if err != nil {
 		logs.Errorf("update config item failed, err: %v, rid: %s", err, grpcKit.Rid)
-		return nil, err
-	}
-
-	// 2. check if content sign changed,if changed,create content and commit
-	// 2.1. get latest commit and compare content sign
-	glcReq := &pbds.GetLatestCommitReq{
-		BizId:        req.BizId,
-		AppId:        req.AppId,
-		ConfigItemId: req.Id,
-	}
-	glcResp, err := s.client.DS.GetLatestCommit(grpcKit.RpcCtx(), glcReq)
-	if err != nil {
-		logs.Errorf("get config item latest commit failed, err: %v, rid: %s", err, grpcKit.Rid)
 		return nil, err
 	}
 

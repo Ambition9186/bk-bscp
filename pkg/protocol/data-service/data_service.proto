@@ -483,6 +483,7 @@ message BatchUpsertConfigItemsReq {
     pbatb.TemplateBinding template_binding = 2;
   }
   repeated TemplateBinding bindings = 6;
+  bool from_other_ver = 7;
 }
 
 message BatchUpsertConfigItemsResp {
@@ -1960,6 +1961,7 @@ message BatchUpsertKvsReq {
   uint32 app_id = 2;
   repeated Kv kvs = 3;
   bool replace_all = 4;
+  bool from_other_ver = 5;
 }
 
 message BatchUpsertKvsResp {

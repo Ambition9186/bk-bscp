@@ -216,6 +216,8 @@ type ConfigItemSpec struct {
 	Memo     string     `db:"memo" json:"memo" gorm:"column:memo"`
 	// KV类型，不能有Permission
 	Permission *FilePermission `db:"permission" json:"permission" gorm:"embedded"`
+	// FileState 配置项文件状态
+	FileState ConfigItemState `db:"file_state" json:"file_state" gorm:"column:file_state"`
 }
 
 // ValidateCreate validate the config item's specifics

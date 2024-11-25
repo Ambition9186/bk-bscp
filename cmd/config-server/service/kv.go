@@ -322,10 +322,11 @@ func (s *Service) BatchUpsertKvs(ctx context.Context, req *pbcs.BatchUpsertKvsRe
 	}
 
 	r := &pbds.BatchUpsertKvsReq{
-		BizId:      req.BizId,
-		AppId:      req.AppId,
-		Kvs:        kvs,
-		ReplaceAll: req.GetReplaceAll(),
+		BizId:        req.BizId,
+		AppId:        req.AppId,
+		Kvs:          kvs,
+		ReplaceAll:   req.GetReplaceAll(),
+		FromOtherVer: req.GetFromOtherVer(),
 	}
 	data, err := s.client.DS.BatchUpsertKvs(grpcKit.RpcCtx(), r)
 	if err != nil {

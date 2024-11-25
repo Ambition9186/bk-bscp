@@ -47,7 +47,7 @@ func (s *Service) CreateKv(ctx context.Context, req *pbds.CreateKvReq) (*pbds.Cr
 
 	// GetByKvState get kv by KvState.
 	_, err = s.dao.Kv().GetByKvState(kt, req.Attachment.BizId, req.Attachment.AppId, req.Spec.Key,
-		[]string{string(table.KvStateAdd), string(table.KvStateUnchange), string(table.KvStateRevise)})
+		[]string{string(table.StateAdd), string(table.StateUnchange), string(table.StateRevise)})
 	if err != nil && !errors.Is(gorm.ErrRecordNotFound, err) {
 		logs.Errorf("get kv (%d) failed, err: %v, rid: %s", req.Spec.Key, err, kt.Rid)
 		return nil, errf.Errorf(errf.NotFound,
@@ -97,7 +97,7 @@ func (s *Service) CreateKv(ctx context.Context, req *pbds.CreateKvReq) (*pbds.Cr
 		},
 	}
 	kv.Spec.Version = uint32(version)
-	kv.KvState = table.KvStateAdd
+	kv.KvState = table.StateAdd
 	// Create one kv instance
 	id, err := s.dao.Kv().Create(kt, kv)
 	if err != nil {
@@ -124,7 +124,7 @@ func (s *Service) UpdateKv(ctx context.Context, req *pbds.UpdateKvReq) (*pbbase.
 
 	// GetByKvState get kv by KvState.
 	kv, err := s.dao.Kv().GetByKvState(kt, req.Attachment.BizId, req.Attachment.AppId, req.Spec.Key,
-		[]string{string(table.KvStateAdd), string(table.KvStateUnchange), string(table.KvStateRevise)})
+		[]string{string(table.StateAdd), string(table.StateUnchange), string(table.StateRevise)})
 	if err != nil {
 		logs.Errorf("get kv (%d) failed, err: %v, rid: %s", req.Spec.Key, err, kt.Rid)
 		return nil, errf.Errorf(errf.DBOpFailed,
@@ -144,8 +144,8 @@ func (s *Service) UpdateKv(ctx context.Context, req *pbds.UpdateKvReq) (*pbbase.
 		return nil, errf.Errorf(errf.DBOpFailed, i18n.T(kt, "update kv failed, err: %v", err))
 	}
 
-	if kv.KvState == table.KvStateUnchange {
-		kv.KvState = table.KvStateRevise
+	if kv.KvState == table.StateUnchange {
+		kv.KvState = table.StateRevise
 	}
 
 	kv.Revision = &table.Revision{
@@ -256,13 +256,13 @@ func (s *Service) DeleteKv(ctx context.Context, req *pbds.DeleteKvReq) (*pbbase.
 		return nil, err
 	}
 
-	if kv.KvState == table.KvStateAdd {
+	if kv.KvState == table.StateAdd {
 		if e := s.dao.Kv().Delete(kt, kv); e != nil {
 			logs.Errorf("delete kv failed, err: %v, rid: %s", e, kt.Rid)
 			return nil, e
 		}
 	} else {
-		kv.KvState = table.KvStateDelete
+		kv.KvState = table.StateDelete
 		kv.Revision.Reviser = kt.User
 		if e := s.dao.Kv().Update(kt, kv); e != nil {
 			logs.Errorf("delete kv failed, err: %v, rid: %s", e, kt.Rid)
@@ -279,13 +279,12 @@ func (s *Service) DeleteKv(ctx context.Context, req *pbds.DeleteKvReq) (*pbbase.
 // replace_all为true时，清空表中的数据，但保证前面两条逻辑
 // nolint:funlen
 func (s *Service) BatchUpsertKvs(ctx context.Context, req *pbds.BatchUpsertKvsReq) (*pbds.BatchUpsertKvsResp, error) {
-
 	// FromGrpcContext used only to obtain Kit through grpc context.
 	kt := kit.FromGrpcContext(ctx)
 
 	app, err := s.dao.App().Get(kt, req.BizId, req.AppId)
 	if err != nil {
-		return nil, errf.Errorf(errf.DBOpFailed, i18n.T(kt, "get app failed, err: %v", err))
+		return nil, errf.Errorf(errf.DBOpFailed, i18n.T(kt, "get app failed, err: %v"), err)
 	}
 	if app.Spec.ConfigType != table.KV {
 		return nil, errors.New(i18n.T(kt, "not a KV type service"))
@@ -297,15 +296,15 @@ func (s *Service) BatchUpsertKvs(ctx context.Context, req *pbds.BatchUpsertKvsRe
 	}
 
 	kvStateArr := []string{
-		string(table.KvStateUnchange),
-		string(table.KvStateAdd),
-		string(table.KvStateRevise),
+		string(table.StateUnchange),
+		string(table.StateAdd),
+		string(table.StateRevise),
 	}
 
 	// 1. 查询过滤删除后的kv
 	kvs, err := s.dao.Kv().ListAllByAppID(kt, req.GetAppId(), req.GetBizId(), kvStateArr)
 	if err != nil {
-		return nil, errf.Errorf(errf.DBOpFailed, i18n.T(kt, "list kv failed, err: %v", err))
+		return nil, errf.Errorf(errf.DBOpFailed, i18n.T(kt, "list kv failed, err: %v"), err)
 	}
 
 	tx := s.dao.GenQuery().Begin()
@@ -407,12 +406,12 @@ func (s *Service) clearDraftKVStore(kt *kit.Kit, tx *gen.QueryTx, req *pbds.Batc
 	fakeDelete := make([]*table.Kv, 0)
 	for _, v := range kvs {
 		// 如果是新增类型需要真删除, 否则假删除
-		if v.KvState == table.KvStateAdd {
+		if v.KvState == table.StateAdd {
 			reallyDelete = append(reallyDelete, v.ID)
 		} else {
 			v.Revision.Reviser = kt.User
 			v.Revision.UpdatedAt = time.Now().UTC()
-			v.KvState = table.KvStateDelete
+			v.KvState = table.StateDelete
 			fakeDelete = append(fakeDelete, v)
 		}
 	}
@@ -486,7 +485,7 @@ func (s *Service) checkKvs(kt *kit.Kit, tx *gen.QueryTx, req *pbds.BatchUpsertKv
 	// 通过事务获取指定状态的kv
 	editingKvs, err := s.dao.Kv().ListAllByAppIDWithTx(kt, tx, req.GetAppId(), req.GetBizId(), kvStates)
 	if err != nil {
-		return nil, nil, errf.Errorf(errf.DBOpFailed, i18n.T(kt, "list kv failed, err: %v", err))
+		return nil, nil, errf.Errorf(errf.DBOpFailed, i18n.T(kt, "list kv failed, err: %v"), err)
 	}
 
 	editingKvMap := make(map[string]*table.Kv)
@@ -525,8 +524,10 @@ func (s *Service) checkKvs(kt *kit.Kit, tx *gen.QueryTx, req *pbds.BatchUpsertKv
 		}
 
 		if editing, exists = editingKvMap[kv.KvSpec.Key]; exists {
-			if editing.KvState == table.KvStateUnchange {
-				editing.KvState = table.KvStateRevise
+			if req.FromOtherVer && editing.KvState == table.StateUnchange {
+				editing.KvState = table.StateUnchange
+			} else if editing.KvState == table.StateUnchange {
+				editing.KvState = table.StateRevise
 			}
 			toUpdate = append(toUpdate, &table.Kv{
 				ID:          editing.ID,
@@ -538,7 +539,7 @@ func (s *Service) checkKvs(kt *kit.Kit, tx *gen.QueryTx, req *pbds.BatchUpsertKv
 			})
 		} else {
 			toCreate = append(toCreate, &table.Kv{
-				KvState:    table.KvStateAdd,
+				KvState:    table.StateAdd,
 				Spec:       kvSpec,
 				Attachment: kvAttachment,
 				Revision: &table.Revision{
@@ -562,7 +563,7 @@ func (s *Service) UnDeleteKv(ctx context.Context, req *pbds.UnDeleteKvReq) (*pbb
 
 	// 只有删除的才能恢复
 	kv, err := s.dao.Kv().GetByKvState(kt, req.GetBizId(), req.GetAppId(), req.GetKey(), []string{
-		string(table.KvStateDelete),
+		string(table.StateDelete),
 	})
 	if err != nil {
 		logs.Errorf("get kv (%s) failed, err: %v, rid: %s", req.GetKey(), err, kt.Rid)
@@ -571,7 +572,7 @@ func (s *Service) UnDeleteKv(ctx context.Context, req *pbds.UnDeleteKvReq) (*pbb
 
 	// 看该key是否有存在新增
 	addKv, err := s.dao.Kv().GetByKvState(kt, req.GetBizId(), req.GetAppId(), req.GetKey(), []string{
-		string(table.KvStateAdd),
+		string(table.StateAdd),
 	})
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		logs.Errorf("get kv (%s) failed, err: %v, rid: %s", req.GetKey(), err, kt.Rid)
@@ -616,7 +617,7 @@ func (s *Service) UndoKv(ctx context.Context, req *pbds.UndoKvReq) (*pbbase.Empt
 
 	// 只有编辑的才能撤回
 	kvState := []string{
-		string(table.KvStateRevise),
+		string(table.StateRevise),
 	}
 	kv, err := s.dao.Kv().GetByKvState(kt, req.GetBizId(), req.GetAppId(), req.GetKey(), kvState)
 	if err != nil {
@@ -669,7 +670,7 @@ func (s *Service) getLatestReleasedKV(kt *kit.Kit, bizID, appID uint32, kv *tabl
 		return nil, err
 	}
 
-	kv.KvState = table.KvStateUnchange
+	kv.KvState = table.StateUnchange
 
 	kv.Revision = &table.Revision{
 		Reviser:   kt.User,

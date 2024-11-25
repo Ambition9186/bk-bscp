@@ -57,7 +57,7 @@ type Kv interface {
 	GetCount(kit *kit.Kit, bizID uint32, appId []uint32) ([]*table.ListConfigItemCounts, error)
 	// UpdateSelectedKVStates updates the states of selected kv pairs using a transaction
 	UpdateSelectedKVStates(kit *kit.Kit, tx *gen.QueryTx, bizID, appID uint32, targetKVStates []string,
-		newKVStates table.KvState) error
+		newKVStates table.ConfigItemState) error
 	// DeleteByStateWithTx deletes kv pairs with a specific state using a transaction
 	DeleteByStateWithTx(kit *kit.Kit, tx *gen.QueryTx, kv *table.Kv) error
 	// FetchIDsExcluding 获取指定ID后排除的ID
@@ -88,7 +88,7 @@ func (dao *kvDao) FetchKeysExcluding(kit *kit.Kit, bizID uint32, appID uint32, k
 	if err := q.Select(m.Key).
 		Where(m.BizID.Eq(bizID), m.AppID.Eq(appID),
 			m.Key.NotIn(keys...),
-			m.KvState.Eq(table.KvStateDelete.String())).
+			m.KvState.Eq(table.StateDelete.String())).
 		Pluck(m.Key, &result); err != nil {
 		return nil, err
 	}
@@ -117,7 +117,7 @@ func (dao *kvDao) ListAllByAppIDWithTx(kit *kit.Kit, tx *gen.QueryTx, appID uint
 func (dao *kvDao) CountNumberUnDeleted(kit *kit.Kit, bizID uint32, opt *types.ListKvOption) (int64, error) {
 	m := dao.genQ.Kv
 	q := dao.genQ.Kv.WithContext(kit.Ctx).Where(m.BizID.Eq(bizID), m.AppID.Eq(opt.AppID),
-		m.KvState.Neq(table.KvStateDelete.String()))
+		m.KvState.Neq(table.StateDelete.String()))
 	if opt.SearchKey != "" {
 		searchKey := "(?i)" + opt.SearchKey
 		q = q.Where(q.Where(q.Or(m.Key.Regexp(searchKey)).Or(m.Creator.Regexp(searchKey)).Or(
@@ -504,7 +504,7 @@ func (dao *kvDao) BatchUpdateWithTx(kit *kit.Kit, tx *gen.QueryTx, kvs []*table.
 
 // UpdateSelectedKVStates 批量更新kv状态
 func (dao *kvDao) UpdateSelectedKVStates(kit *kit.Kit, tx *gen.QueryTx, bizID, appID uint32,
-	targetKVStates []string, newKVStates table.KvState) error {
+	targetKVStates []string, newKVStates table.ConfigItemState) error {
 
 	if bizID <= 0 {
 		return errors.New("biz id should be set")
@@ -555,9 +555,9 @@ func (dao *kvDao) GetCount(kit *kit.Kit, bizID uint32, appId []uint32) ([]*table
 	configItem := make([]*table.ListConfigItemCounts, 0)
 
 	kvState := []string{
-		string(table.KvStateAdd),
-		string(table.KvStateRevise),
-		string(table.KvStateUnchange),
+		string(table.StateAdd),
+		string(table.StateRevise),
+		string(table.StateUnchange),
 	}
 	m := dao.genQ.Kv
 	q := dao.genQ.Kv.WithContext(kit.Ctx)
