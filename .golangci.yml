@@ -1,9 +1,10 @@
 run:
   timeout: 10m
-  skip-dirs:
+issues:
+  exclude-dirs:
     - .*/third_party/*
     - test/*
-  skip-files:
+  exclude-files:
     - .*\.docs\.go$
     - .*\.gen\.go$
     - .*\.pb\.go$
@@ -16,10 +17,8 @@ run:
     - test/benchmark/run/template.go
     - test/mock/repo/service/node.go
     - pkg/version/version.go
-issues:
   max-issues-per-linter: 0
   max-same-issues: 0
-  exclude-use-default: false
 linters:
   disable-all: true
   enable:
