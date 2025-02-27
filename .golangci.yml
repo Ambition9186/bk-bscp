@@ -1,9 +1,10 @@
 run:
   timeout: 10m
 issues:
+  exclude-dirs-use-default: true
   exclude-dirs:
-    - .*/third_party/*
-    - test/*
+    # - .*/third_party/*
+    # - testdata
   exclude-files:
     - .*\.docs\.go$
     - .*\.gen\.go$
