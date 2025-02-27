@@ -189,16 +189,24 @@ func (s *Service) GetLatestTemplateVersionsInSpace(ctx context.Context, req *pbd
 		return nil, err
 	}
 	templateSets := make([]*table.TemplateSet, 0)
+
 	// 2. 模板套餐不是0表示获取某个套餐
 	if req.TemplateId != 0 {
-		templateSet, err := s.dao.TemplateSet().GetByTemplateSetByID(kit, req.BizId, req.TemplateId)
-		if err != nil {
+		templateSet, errG := s.dao.TemplateSet().GetByTemplateSetByID(kit, req.BizId, req.TemplateId)
+		if errG != nil {
 			return nil, err
 		}
 		templateSets = append(templateSets, templateSet)
 	} else {
 		// 获取空间下的所有套餐
 		templateSets, _, err = s.dao.TemplateSet().List(kit, req.BizId, req.TemplateSpaceId, nil, &types.BasePage{All: true})
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if err != nil {
+		return nil, err
 	}
 
 	// 3. 通过套餐获取模板

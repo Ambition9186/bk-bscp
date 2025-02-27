@@ -653,8 +653,7 @@ func (s *Service) ListReleases(ctx context.Context, req *pbds.ListReleasesReq) (
 		SearchKey:  req.SearchKey,
 	}
 	if req.All {
-		query.Page.Start = 0
-		query.Page.Limit = 0
+		query.Page.Start, query.Page.Limit = 0, 0
 	}
 
 	details, err := s.dao.Release().List(grpcKit, query)
@@ -677,49 +676,17 @@ func (s *Service) ListReleases(ctx context.Context, req *pbds.ListReleasesReq) (
 		return nil, err
 	}
 
+	groupByID := make(map[uint32]*table.Group)
+	for _, group := range groups {
+		groupByID[group.ID] = group
+	}
+
 	var releaseIDs []uint32
 	for _, release := range releases {
 		releaseIDs = append(releaseIDs, release.Id)
 		status, selected := s.queryPublishStatus(gcrs, release.Id)
-		releasedGroups := make([]*pbrelease.ReleaseStatus_ReleasedGroup, 0)
-		for _, gcr := range selected {
-			if gcr.GroupID == 0 {
-				releasedGroups = append(releasedGroups, &pbrelease.ReleaseStatus_ReleasedGroup{
-					Id:   0,
-					Name: "默认分组",
-					Mode: table.GroupModeDefault.String(),
-				})
-			}
-			for _, group := range groups {
-				if group.ID == gcr.GroupID {
-					oldSelector := new(pbstruct.Struct)
-					newSelector := new(pbstruct.Struct)
-					if gcr.Selector != nil {
-						s, err := gcr.Selector.MarshalPB()
-						if err != nil {
-							return nil, err
-						}
-						oldSelector = s
-					}
-					if group.Spec.Selector != nil {
-						s, err := group.Spec.Selector.MarshalPB()
-						if err != nil {
-							return nil, err
-						}
-						newSelector = s
-					}
-					releasedGroups = append(releasedGroups, &pbrelease.ReleaseStatus_ReleasedGroup{
-						Id:          group.ID,
-						Name:        group.Spec.Name,
-						Mode:        gcr.Mode.String(),
-						OldSelector: oldSelector,
-						NewSelector: newSelector,
-						Edited:      gcr.Edited,
-					})
-					break
-				}
-			}
-		}
+		releasedGroups := s.buildReleasedGroups(selected, groupByID)
+
 		release.Status.PublishStatus = status
 		release.Status.ReleasedGroups = releasedGroups
 	}
@@ -730,19 +697,74 @@ func (s *Service) ListReleases(ctx context.Context, req *pbds.ListReleasesReq) (
 		return nil, err
 	}
 
-	for _, r := range releases {
-		for _, s := range st {
-			if r.Id == s.Spec.ReleaseID {
-				r.Status.StrategyStatus = string(s.Spec.PublishStatus)
-			}
-		}
-	}
+	s.updateReleaseStrategyStatus(releases, st)
 
 	resp := &pbds.ListReleasesResp{
 		Count:   details.Count,
 		Details: releases,
 	}
 	return resp, nil
+}
+
+// buildReleasedGroups builds the released groups for a given set of selected groups.
+func (s *Service) buildReleasedGroups(selected []*table.ReleasedGroup, groupByID map[uint32]*table.Group) []*pbrelease.ReleaseStatus_ReleasedGroup {
+	var releasedGroups []*pbrelease.ReleaseStatus_ReleasedGroup
+
+	for _, gcr := range selected {
+		// Default group handling
+		if gcr.GroupID == 0 {
+			releasedGroups = append(releasedGroups, &pbrelease.ReleaseStatus_ReleasedGroup{
+				Id:   0,
+				Name: "默认分组",
+				Mode: table.GroupModeDefault.String(),
+			})
+		} else {
+			// Process group by ID
+			group, exists := groupByID[gcr.GroupID]
+			if exists {
+				oldSelector := new(pbstruct.Struct)
+				newSelector := new(pbstruct.Struct)
+				if gcr.Selector != nil {
+					s, err := gcr.Selector.MarshalPB()
+					if err == nil {
+						oldSelector = s
+					}
+				}
+				if group.Spec.Selector != nil {
+					s, err := group.Spec.Selector.MarshalPB()
+					if err == nil {
+						newSelector = s
+					}
+				}
+
+				releasedGroups = append(releasedGroups, &pbrelease.ReleaseStatus_ReleasedGroup{
+					Id:          group.ID,
+					Name:        group.Spec.Name,
+					Mode:        gcr.Mode.String(),
+					OldSelector: oldSelector,
+					NewSelector: newSelector,
+					Edited:      gcr.Edited,
+				})
+			}
+		}
+	}
+	return releasedGroups
+}
+
+// updateReleaseStrategyStatus updates the strategy status for the releases.
+func (s *Service) updateReleaseStrategyStatus(releases []*pbrelease.Release, strategies []*table.Strategy) {
+	// Create a map of release ID to strategy
+	strategyByReleaseID := make(map[uint32]*table.Strategy)
+	for _, strategy := range strategies {
+		strategyByReleaseID[strategy.Spec.ReleaseID] = strategy
+	}
+
+	// Update release statuses with strategy info
+	for _, release := range releases {
+		if strategy, exists := strategyByReleaseID[release.Id]; exists {
+			release.Status.StrategyStatus = string(strategy.Spec.PublishStatus)
+		}
+	}
 }
 
 // GetReleaseByName get release by release name.

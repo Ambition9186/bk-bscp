@@ -16,7 +16,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"reflect"
 	"strconv"
 
 	"github.com/TencentBlueKing/bk-bscp/pkg/dal/table"
@@ -262,21 +261,4 @@ func isStringArray(input string) bool {
 func isObjectArray(input string) bool {
 	var temp []map[string]string
 	return json.Unmarshal([]byte(input), &temp) == nil
-}
-
-func isNumber(value interface{}) bool {
-	// 获取值的类型
-	valType := reflect.TypeOf(value)
-
-	// 检查类型是否为数字
-	switch valType.Kind() {
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return true
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return true
-	case reflect.Float32, reflect.Float64:
-		return true
-	default:
-		return false
-	}
 }

@@ -458,32 +458,3 @@ func findMaxValue(kit *kit.Kit, fieldName string, rows []*table.DataSourceConten
 
 	return maxID, nil
 }
-
-// 获取某列最大的值
-func findMaxValues(kit *kit.Kit, fieldName string, rows []*table.DataSourceContent) (float64, error) {
-	var maxID float64
-	for _, row := range rows {
-		if row.Spec.Content[fieldName] != "" && row.Spec.Content[fieldName] != nil {
-			var numValue float64
-			var err error
-			switch value := row.Spec.Content[fieldName].(type) {
-			case json.Number:
-				numValue, err = value.Float64()
-				if err != nil {
-					return 0, errors.New(i18n.T(kit,
-						"returns the number as a float64 failed, err: %v", err))
-				}
-			case int64:
-				numValue = float64(value)
-			case float64:
-				numValue = value
-			}
-
-			if numValue > maxID {
-				maxID = numValue
-			}
-		}
-	}
-
-	return maxID, nil
-}

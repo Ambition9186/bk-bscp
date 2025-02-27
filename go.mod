@@ -41,6 +41,7 @@ require (
 	github.com/samber/lo v1.39.0
 	github.com/shimingyah/pool v1.0.0
 	github.com/sirupsen/logrus v1.9.3
+	github.com/smartystreets/goconvey v1.8.1
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.16.0
@@ -48,6 +49,7 @@ require (
 	github.com/swaggo/http-swagger v1.3.4
 	github.com/swaggo/swag v1.16.2
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.42
+	github.com/tidwall/gjson v1.16.0
 	github.com/tidwall/sjson v1.2.5
 	github.com/xuri/excelize/v2 v2.8.0
 	go.etcd.io/etcd/api/v3 v3.5.9
@@ -73,11 +75,12 @@ require (
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
+	github.com/gopherjs/gopherjs v1.17.2 // indirect
+	github.com/jtolds/gls v4.20.0+incompatible // indirect
 	github.com/pingcap/errors v0.11.5-0.20240311024730-e056997136bb // indirect
 	github.com/pingcap/failpoint v0.0.0-20240528011301-b51a646c7c86 // indirect
 	github.com/pingcap/log v1.1.0 // indirect
-	github.com/smartystreets/goconvey v1.8.1 // indirect
-	github.com/tidwall/gjson v1.16.0 // indirect
+	github.com/smarty/assertions v1.15.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 )
 
