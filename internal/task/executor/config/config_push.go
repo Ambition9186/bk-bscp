@@ -27,6 +27,7 @@ import (
 
 	"github.com/TencentBlueKing/bk-bscp/internal/components/bcs"
 	"github.com/TencentBlueKing/bk-bscp/internal/components/gse"
+	pushmanager "github.com/TencentBlueKing/bk-bscp/internal/components/push_manager"
 	"github.com/TencentBlueKing/bk-bscp/internal/criteria/constant"
 	"github.com/TencentBlueKing/bk-bscp/internal/dal/dao"
 	"github.com/TencentBlueKing/bk-bscp/internal/dal/repository"
@@ -63,11 +64,13 @@ type PushConfigExecutor struct {
 }
 
 // NewPushConfigExecutor new push config executor
-func NewPushConfigExecutor(dao dao.Set, gseService *gse.Service, repo repository.Provider) *PushConfigExecutor {
+func NewPushConfigExecutor(dao dao.Set, gseService *gse.Service, repo repository.Provider,
+	pm pushmanager.Service) *PushConfigExecutor {
 	return &PushConfigExecutor{
 		Executor: &common.Executor{
 			Dao:        dao,
 			GseService: gseService,
+			PM:         pm,
 		},
 		Repo:     repo,
 		fileLock: lock.NewFileLock(),
@@ -193,6 +196,14 @@ func (e *PushConfigExecutor) Callback(c *istep.Context, cbErr error) error {
 	if err := e.Dao.TaskBatch().IncrementCompletedCount(kit, payload.BatchID, isSuccess); err != nil {
 		return fmt.Errorf("increment completed count failed, batch: %d, err: %w", payload.BatchID, err)
 	}
+
+	// 统一推送事件
+	e.AfterCallbackNotify(c.Context(), common.CallbackNotify{
+		BizID:    payload.BizID,
+		BatchID:  payload.BatchID,
+		Operator: payload.OperatorUser,
+		CbErr:    cbErr,
+	})
 
 	// 仅配置下发成功才更新配置实例的状态
 	if !isSuccess {

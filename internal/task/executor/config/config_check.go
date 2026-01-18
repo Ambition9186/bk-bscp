@@ -23,6 +23,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/TencentBlueKing/bk-bscp/internal/components/gse"
+	pushmanager "github.com/TencentBlueKing/bk-bscp/internal/components/push_manager"
 	"github.com/TencentBlueKing/bk-bscp/internal/dal/dao"
 	"github.com/TencentBlueKing/bk-bscp/internal/task/executor/common"
 	"github.com/TencentBlueKing/bk-bscp/pkg/dal/table"
@@ -47,11 +48,12 @@ type CheckConfigExecutor struct {
 }
 
 // NewCheckConfigExecutor new check config executor
-func NewCheckConfigExecutor(dao dao.Set, gseService *gse.Service) *CheckConfigExecutor {
+func NewCheckConfigExecutor(dao dao.Set, gseService *gse.Service, pm pushmanager.Service) *CheckConfigExecutor {
 	return &CheckConfigExecutor{
 		Executor: &common.Executor{
 			Dao:        dao,
 			GseService: gseService,
+			PM:         pm,
 		},
 	}
 }
@@ -335,6 +337,19 @@ func (e *CheckConfigExecutor) Callback(c *istep.Context, cbErr error) error {
 		return fmt.Errorf("increment completed count failed, batchID: %d, err: %w",
 			payload.BatchID, err)
 	}
+
+	// 统一推送事件
+	e.AfterCallbackNotify(c.Context(), common.CallbackNotify{
+		BizID:    payload.BizID,
+		BatchID:  payload.BatchID,
+		Operator: payload.OperatorUser,
+		CbErr:    cbErr,
+	})
+
+	logs.Infof(
+		"[CheckConfig Callback] finished, taskID=%s, batchID=%d",
+		c.GetTaskID(), payload.BatchID,
+	)
 
 	return nil
 }
