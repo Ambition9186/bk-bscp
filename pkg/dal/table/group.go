@@ -64,7 +64,7 @@ func (g Group) ResType() string {
 
 // ProjectID AuditRes interface, 后续通过上下文透传。
 func (g Group) ProjectID() uint32 {
-	return 0
+	return g.ProjectID()
 }
 
 // ValidateCreate validate group is valid or not when create it.
@@ -270,8 +270,9 @@ var GroupAttachmentColumnDescriptor = ColumnDescriptors{
 
 // GroupAttachment defines the group attachments.
 type GroupAttachment struct {
-	BizID    uint32 `db:"biz_id" json:"biz_id" gorm:"column:biz_id"`
-	TenantID string `json:"tenant_id" gorm:"column:tenant_id"`
+	TenantID  string `json:"tenant_id" gorm:"column:tenant_id"`
+	BizID     uint32 `db:"biz_id" json:"biz_id" gorm:"column:biz_id"`
+	ProjectID uint32 `json:"project_id" gorm:"column:project_id"`
 }
 
 // IsEmpty test whether group attachment is empty or not.

@@ -53,7 +53,7 @@ func (t *TemplateVariable) ResType() string {
 
 // ProjectID AuditRes interface, 后续通过上下文透传。
 func (t *TemplateVariable) ProjectID() uint32 {
-	return 0
+	return t.ProjectID()
 }
 
 // ValidateCreate validate template variable is valid or not when create it.
@@ -187,8 +187,9 @@ func (t *TemplateVariableSpec) ValidateDefaultVal(kit *kit.Kit) error {
 
 // TemplateVariableAttachment defines the template variable attachments.
 type TemplateVariableAttachment struct {
-	BizID    uint32 `json:"biz_id" gorm:"column:biz_id"`
-	TenantID string `json:"tenant_id" gorm:"column:tenant_id"`
+	TenantID  string `json:"tenant_id" gorm:"column:tenant_id"`
+	BizID     uint32 `json:"biz_id" gorm:"column:biz_id"`
+	ProjectID uint32 `json:"project_id" gorm:"column:project_id"`
 }
 
 // Validate whether template variable attachment is valid or not.

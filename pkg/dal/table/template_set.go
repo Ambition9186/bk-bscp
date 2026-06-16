@@ -165,9 +165,9 @@ func (t *TemplateSetSpec) ValidateUpdate(kit *kit.Kit) error {
 
 // TemplateSetAttachment defines the template set attachments.
 type TemplateSetAttachment struct {
+	TenantID        string `json:"tenant_id" gorm:"column:tenant_id"`
 	BizID           uint32 `json:"biz_id" gorm:"column:biz_id"`
 	TemplateSpaceID uint32 `json:"template_space_id" gorm:"column:template_space_id"`
-	TenantID        string `json:"tenant_id" gorm:"column:tenant_id"`
 }
 
 // Validate whether TemplateSet attachment is valid or not.

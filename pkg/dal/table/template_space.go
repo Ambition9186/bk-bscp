@@ -50,7 +50,7 @@ func (t *TemplateSpace) ResType() string {
 
 // ProjectID AuditRes interface, 后续通过上下文透传。
 func (t *TemplateSpace) ProjectID() uint32 {
-	return 0
+	return t.ProjectID()
 }
 
 // ValidateCreate validate template space is valid or not when create it.
@@ -161,8 +161,9 @@ func (t *TemplateSpaceSpec) ValidateUpdate(kit *kit.Kit) error {
 
 // TemplateSpaceAttachment defines the template space attachments.
 type TemplateSpaceAttachment struct {
-	BizID    uint32 `json:"biz_id" gorm:"column:biz_id"`
-	TenantID string `json:"tenant_id" gorm:"column:tenant_id"`
+	TenantID  string `json:"tenant_id" gorm:"column:tenant_id"`
+	BizID     uint32 `json:"biz_id" gorm:"column:biz_id"`
+	ProjectID uint32 `json:"project_id" gorm:"column:project_id"`
 }
 
 // Validate whether template space attachment is valid or not.
