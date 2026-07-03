@@ -126,6 +126,7 @@ service Data {
   rpc GetAllBizsOfTmplSpaces(pbbase.EmptyReq) returns (GetAllBizsOfTmplSpacesResp) {}
   rpc CreateDefaultTmplSpace(CreateDefaultTmplSpaceReq) returns (CreateResp) {}
   rpc ListTmplSpacesByIDs(ListTmplSpacesByIDsReq) returns (ListTmplSpacesByIDsResp) {}
+  rpc GetTemplateSpaceByID(GetTemplateSpaceByIDReq) returns (GetTemplateSpaceByIDResp) {}
 
   // template related interface.
   rpc CreateTemplate(CreateTemplateReq) returns (CreateResp) {}
@@ -1110,8 +1111,8 @@ message ListTemplateSpacesReq {
   uint32 start = 4;
   uint32 limit = 5;
   bool all = 6;
+  uint32 project_id = 7;
 }
-
 message ListTemplateSpacesResp {
   uint32 count = 1;
   repeated pbts.TemplateSpace details = 2;
@@ -1134,14 +1135,27 @@ message GetAllBizsOfTmplSpacesResp {
 
 message CreateDefaultTmplSpaceReq {
   uint32 biz_id = 1;
+  uint32 project_id = 2;
 }
 
 message ListTmplSpacesByIDsReq {
   repeated uint32 ids = 1;
+  uint32 biz_id = 2;
+  uint32 project_id = 3;
 }
 
 message ListTmplSpacesByIDsResp {
   repeated pbts.TemplateSpace details = 1;
+}
+
+message GetTemplateSpaceByIDReq {
+  uint32 biz_id = 1;
+  uint32 id = 2;
+  uint32 project_id = 3;
+}
+
+message GetTemplateSpaceByIDResp {
+  pbts.TemplateSpace data = 1;
 }
 
 message CreateTemplateReq {
@@ -1435,6 +1449,8 @@ message ListTemplateSetsByIDsResp {
 
 message ListTemplateSetBriefInfoByIDsReq {
   repeated uint32 ids = 1;
+  uint32 biz_id = 2;
+  uint32 project_id = 3;
 }
 
 message ListTemplateSetBriefInfoByIDsResp {
@@ -1461,8 +1477,8 @@ message ListAppTemplateBindingsReq {
   uint32 start = 3;
   uint32 limit = 4;
   bool all = 5;
+  uint32 project_id = 6;
 }
-
 message ListAppTemplateBindingsResp {
   uint32 count = 1;
   repeated pbatb.AppTemplateBinding details = 2;
@@ -1487,8 +1503,8 @@ message ListAppBoundTmplRevisionsReq {
   uint32 limit = 5;
   bool all = 6;
   bool with_status = 7;
+  uint32 project_id = 8;
 }
-
 message ListAppBoundTmplRevisionsResp {
   uint32 count = 1;
   repeated pbatb.AppBoundTmplRevision details = 2;
@@ -2433,6 +2449,7 @@ message GetLatestTemplateVersionsInSpaceReq {
   uint32 biz_id = 1;
   uint32 template_space_id = 2;
   uint32 template_id = 3;
+  uint32 project_id = 4;
 }
 
 message GetLatestTemplateVersionsInSpaceResp {

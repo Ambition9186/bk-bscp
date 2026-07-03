@@ -268,7 +268,7 @@ service Config {
       post: "/api/v1/config/config_item_count/biz_id/{biz_id}"
       body: "*"
       additional_bindings {
-        post: "/api/v1/config/biz/{biz_id}/projects/{project_id}/envs/{env_id}/apps/{app_id}/config_items/count"
+        post: "/api/v1/config/biz/{biz_id}/projects/{project_id}/envs/{env_id}/config_items/count"
         body: "*"
       }
     };
@@ -578,6 +578,7 @@ service Config {
     option (google.api.http) = {
       post: "/api/v1/config/biz/{biz_id}/template_spaces"
       body: "*"
+      additional_bindings { post: "/api/v1/config/biz/{biz_id}/projects/{project_id}/template_spaces" body: "*" }
     };
   }
   // 删除模板空间
@@ -585,6 +586,9 @@ service Config {
     option (google.api.method_visibility).restriction = "INTERNAL";
     option (google.api.http) = {
       delete: "/api/v1/config/biz/{biz_id}/template_spaces/{template_space_id}"
+      additional_bindings {
+        delete: "/api/v1/config/biz/{biz_id}/projects/{project_id}/template_spaces/{template_space_id}"
+      }
     };
   }
   // 更新模板空间
@@ -593,6 +597,10 @@ service Config {
     option (google.api.http) = {
       put: "/api/v1/config/biz/{biz_id}/template_spaces/{template_space_id}"
       body: "*"
+      additional_bindings {
+        put: "/api/v1/config/biz/{biz_id}/projects/{project_id}/template_spaces/{template_space_id}"
+        body: "*"
+      }
     };
   }
   // 获取模板空间列表
@@ -600,6 +608,7 @@ service Config {
     option (google.api.method_visibility).restriction = "INTERNAL";
     option (google.api.http) = {
       get: "/api/v1/config/biz/{biz_id}/template_spaces"
+      additional_bindings { get: "/api/v1/config/biz/{biz_id}/projects/{project_id}/template_spaces" }
     };
   }
   // GetAllBizsOfTmplSpaces called only by system itself
@@ -615,6 +624,10 @@ service Config {
     option (google.api.http) = {
       post: "/api/v1/config/template_spaces/default"
       body: "*"
+      additional_bindings {
+        post: "/api/v1/config/biz/{biz_id}/projects/{project_id}/template_spaces/default"
+        body: "*"
+      }
     };
   }
   rpc ListTmplSpacesByIDs(ListTmplSpacesByIDsReq) returns (ListTmplSpacesByIDsResp) {
@@ -622,6 +635,19 @@ service Config {
     option (google.api.http) = {
       post: "/api/v1/config/biz/{biz_id}/template_spaces/list_by_ids"
       body: "*"
+      additional_bindings {
+        post: "/api/v1/config/biz/{biz_id}/projects/{project_id}/template_spaces/list_by_ids"
+        body: "*"
+      }
+    };
+  }
+  rpc GetTemplateSpace(GetTemplateSpaceReq) returns (GetTemplateSpaceResp) {
+    option (google.api.method_visibility).restriction = "INTERNAL";
+    option (google.api.http) = {
+      get: "/api/v1/config/biz/{biz_id}/template_spaces/{template_space_id}"
+      additional_bindings {
+        get: "/api/v1/config/biz/{biz_id}/projects/{project_id}/template_spaces/{template_space_id}"
+      }
     };
   }
   // 创建模板
@@ -631,6 +657,10 @@ service Config {
       post: "/api/v1/config/biz/{biz_id}/template_spaces/{template_space_id}/"
             "templates"
       body: "*"
+      additional_bindings {
+        post: "/api/v1/config/biz/{biz_id}/projects/{project_id}/template_spaces/{template_space_id}/templates"
+        body: "*"
+      }
     };
   }
   // 删除模板
@@ -639,6 +669,9 @@ service Config {
     option (google.api.http) = {
       delete: "/api/v1/config/biz/{biz_id}/template_spaces/"
               "{template_space_id}/templates/{template_id}"
+      additional_bindings {
+        delete: "/api/v1/config/biz/{biz_id}/projects/{project_id}/template_spaces/{template_space_id}/templates/{template_id}"
+      }
     };
   }
   // 批量删除模板
@@ -647,6 +680,9 @@ service Config {
     option (google.api.http) = {
       delete: "/api/v1/config/biz/{biz_id}/template_spaces/"
               "{template_space_id}/templates"
+      additional_bindings {
+        delete: "/api/v1/config/biz/{biz_id}/projects/{project_id}/template_spaces/{template_space_id}/templates"
+      }
     };
   }
   // 更新模板
@@ -656,6 +692,10 @@ service Config {
       put: "/api/v1/config/biz/{biz_id}/template_spaces/{template_space_id}/"
            "templates/{template_id}"
       body: "*"
+      additional_bindings {
+        put: "/api/v1/config/biz/{biz_id}/projects/{project_id}/template_spaces/{template_space_id}/templates/{template_id}"
+        body: "*"
+      }
     };
   }
   // 获取模板列表(全部配置文件)
@@ -664,6 +704,10 @@ service Config {
     option (google.api.http) = {
       post: "/api/v1/config/biz/{biz_id}/template_spaces/{template_space_id}/templates/list"
       body: "*"
+      additional_bindings {
+        post: "/api/v1/config/biz/{biz_id}/projects/{project_id}/template_spaces/{template_space_id}/templates/list"
+        body: "*"
+      }
     };
   }
   // 批量创建或更新模板
@@ -673,6 +717,10 @@ service Config {
       post: "/api/v1/config/biz/{biz_id}/template_spaces/{template_space_id}/"
             "templates/batch_upsert_templates"
       body: "*"
+      additional_bindings {
+        post: "/api/v1/config/biz/{biz_id}/projects/{project_id}/template_spaces/{template_space_id}/templates/batch_upsert_templates"
+        body: "*"
+      }
     };
   }
   // 批量更新模板权限
@@ -681,6 +729,10 @@ service Config {
     option (google.api.http) = {
       post: "/api/v1/config/biz/{biz_id}/template_spaces/{template_space_id}/template_set/{template_set_id}/templates/batch_update_templates_permissions"
       body: "*"
+      additional_bindings {
+        post: "/api/v1/config/biz/{biz_id}/projects/{project_id}/template_spaces/{template_space_id}/template_set/{template_set_id}/templates/batch_update_templates_permissions"
+        body: "*"
+      }
     };
   }
   // 添加至模板套餐中
@@ -707,6 +759,7 @@ service Config {
     option (google.api.http) = {
       post: "/api/v1/config/biz/{biz_id}/templates/list_by_ids"
       body: "*"
+      additional_bindings { post: "/api/v1/config/biz/{biz_id}/projects/{project_id}/templates/list_by_ids" body: "*" }
     };
   }
   // 获取未绑定的模板列表
@@ -716,6 +769,10 @@ service Config {
       post: "/api/v1/config/biz/{biz_id}/template_spaces/{template_space_id}/"
             "templates/list_not_bound"
       body: "*"
+      additional_bindings {
+        post: "/api/v1/config/biz/{biz_id}/projects/{project_id}/template_spaces/{template_space_id}/templates/list_not_bound"
+        body: "*"
+      }
     };
   }
   // 按模板绝对路径获取模板列表
@@ -725,6 +782,10 @@ service Config {
       post: "/api/v1/config/biz/{biz_id}/template_spaces/{template_space_id}/"
             "templates/tuple"
       body: "*"
+      additional_bindings {
+        post: "/api/v1/config/biz/{biz_id}/projects/{project_id}/template_spaces/{template_space_id}/templates/tuple"
+        body: "*"
+      }
     };
   }
   // 按模板套餐获取模板列表
@@ -734,6 +795,10 @@ service Config {
       post: "/api/v1/config/biz/{biz_id}/template_spaces/{template_space_id}/"
             "template_sets/{template_set_id}/templates"
       body: "*"
+      additional_bindings {
+        post: "/api/v1/config/biz/{biz_id}/projects/{project_id}/template_spaces/{template_space_id}/template_sets/{template_set_id}/templates"
+        body: "*"
+      }
     };
   }
   // 获取模板套餐下的所有版本列表
@@ -741,6 +806,9 @@ service Config {
     option (google.api.method_visibility).restriction = "INTERNAL";
     option (google.api.http) = {
       get: "/api/v1/config/biz/{biz_id}/template_sets/{template_set_id}/template_revisions"
+      additional_bindings {
+        get: "/api/v1/config/biz/{biz_id}/projects/{project_id}/template_sets/{template_set_id}/template_revisions"
+      }
     };
   }
   // 创建模板版本
@@ -750,6 +818,10 @@ service Config {
       post: "/api/v1/config/biz/{biz_id}/template_spaces/{template_space_id}/"
             "templates/{template_id}/template_revisions"
       body: "*"
+      additional_bindings {
+        post: "/api/v1/config/biz/{biz_id}/projects/{project_id}/template_spaces/{template_space_id}/templates/{template_id}/template_revisions"
+        body: "*"
+      }
     };
   }
   // 更新模板版本
@@ -759,6 +831,10 @@ service Config {
       put: "/api/v1/config/biz/{biz_id}/template_spaces/{template_space_id}/"
            "templates/{template_id}/template_revisions"
       body: "*"
+      additional_bindings {
+        put: "/api/v1/config/biz/{biz_id}/projects/{project_id}/template_spaces/{template_space_id}/templates/{template_id}/template_revisions"
+        body: "*"
+      }
     };
   }
   // 获取模板版本列表
@@ -768,6 +844,10 @@ service Config {
       post: "/api/v1/config/biz/{biz_id}/template_spaces/{template_space_id}/"
             "templates/{template_id}/template_revisions/list"
       body: "*"
+      additional_bindings {
+        post: "/api/v1/config/biz/{biz_id}/projects/{project_id}/template_spaces/{template_space_id}/templates/{template_id}/template_revisions/list"
+        body: "*"
+      }
     };
   }
   // 获取模板版本
@@ -775,6 +855,9 @@ service Config {
     option (google.api.method_visibility).restriction = "INTERNAL";
     option (google.api.http) = {
       get: "/api/v1/config/biz/{biz_id}/templates/{template_id}/template_revisions"
+      additional_bindings {
+        get: "/api/v1/config/biz/{biz_id}/projects/{project_id}/templates/{template_id}/template_revisions"
+      }
     };
   }
   /* 暂时不对外开发（删除模版后，服务引用的latest版本会回退到上一个老版本）
@@ -794,6 +877,10 @@ option (google.api.method_visibility).restriction = "INTERNAL";
     option (google.api.http) = {
       post: "/api/v1/config/biz/{biz_id}/template_revisions/list_by_ids"
       body: "*"
+      additional_bindings {
+        post: "/api/v1/config/biz/{biz_id}/projects/{project_id}/template_revisions/list_by_ids"
+        body: "*"
+      }
     };
   }
   // 按模板ID获取模板版本列表
@@ -812,6 +899,10 @@ option (google.api.method_visibility).restriction = "INTERNAL";
       post: "/api/v1/config/biz/{biz_id}/template_spaces/{template_space_id}/"
             "template_sets"
       body: "*"
+      additional_bindings {
+        post: "/api/v1/config/biz/{biz_id}/projects/{project_id}/template_spaces/{template_space_id}/template_sets"
+        body: "*"
+      }
     };
   }
   // 删除模板套餐
@@ -820,6 +911,9 @@ option (google.api.method_visibility).restriction = "INTERNAL";
     option (google.api.http) = {
       delete: "/api/v1/config/biz/{biz_id}/template_spaces/"
               "{template_space_id}/template_sets/{template_set_id}"
+      additional_bindings {
+        delete: "/api/v1/config/biz/{biz_id}/projects/{project_id}/template_spaces/{template_space_id}/template_sets/{template_set_id}"
+      }
     };
   }
   // 更新模板套餐
@@ -829,6 +923,10 @@ option (google.api.method_visibility).restriction = "INTERNAL";
       put: "/api/v1/config/biz/{biz_id}/template_spaces/{template_space_id}/"
            "template_sets/{template_set_id}"
       body: "*"
+      additional_bindings {
+        put: "/api/v1/config/biz/{biz_id}/projects/{project_id}/template_spaces/{template_space_id}/template_sets/{template_set_id}"
+        body: "*"
+      }
     };
   }
   // 获取模板套餐列表
@@ -837,6 +935,9 @@ option (google.api.method_visibility).restriction = "INTERNAL";
     option (google.api.http) = {
       get: "/api/v1/config/biz/{biz_id}/template_spaces/{template_space_id}/"
            "template_sets"
+      additional_bindings {
+        get: "/api/v1/config/biz/{biz_id}/projects/{project_id}/template_spaces/{template_space_id}/template_sets"
+      }
     };
   }
   // 获取模板空间下最新的模板版本列表
@@ -845,6 +946,9 @@ option (google.api.method_visibility).restriction = "INTERNAL";
     option (google.api.method_visibility).restriction = "INTERNAL";
     option (google.api.http) = {
       get: "/api/v1/config/biz/{biz_id}/template_spaces/{template_space_id}/templates/{template_id}/latest_template_versions"
+      additional_bindings {
+        get: "/api/v1/config/biz/{biz_id}/projects/{project_id}/template_spaces/{template_space_id}/templates/{template_id}/latest_template_versions"
+      }
     };
   }
   // 获取模板套餐列表
@@ -852,6 +956,7 @@ option (google.api.method_visibility).restriction = "INTERNAL";
     option (google.api.method_visibility).restriction = "INTERNAL";
     option (google.api.http) = {
       get: "/api/v1/config/biz/{biz_id}/apps/{app_id}/template_sets"
+      additional_bindings { get: "/api/v1/config/biz/{biz_id}/projects/{project_id}/apps/{app_id}/template_sets" }
     };
   }
   // 按模板套餐ID获取模板套餐列表
@@ -860,6 +965,10 @@ option (google.api.method_visibility).restriction = "INTERNAL";
     option (google.api.http) = {
       post: "/api/v1/config/biz/{biz_id}/template_sets/list_by_ids"
       body: "*"
+      additional_bindings {
+        post: "/api/v1/config/biz/{biz_id}/projects/{project_id}/template_sets/list_by_ids"
+        body: "*"
+      }
     };
   }
   // 按服务ID获取模板套餐列表
@@ -875,6 +984,10 @@ option (google.api.method_visibility).restriction = "INTERNAL";
     option (google.api.http) = {
       post: "/api/v1/config/biz/{biz_id}/apps/{app_id}/template_bindings"
       body: "*"
+      additional_bindings {
+        post: "/api/v1/config/biz/{biz_id}/projects/{project_id}/apps/{app_id}/template_bindings"
+        body: "*"
+      }
     };
   }
   // 删除绑定服务的模板
@@ -883,6 +996,9 @@ option (google.api.method_visibility).restriction = "INTERNAL";
     option (google.api.http) = {
       delete: "/api/v1/config/biz/{biz_id}/apps/{app_id}/template_bindings/"
               "{binding_id}"
+      additional_bindings {
+        delete: "/api/v1/config/biz/{biz_id}/projects/{project_id}/apps/{app_id}/template_bindings/{binding_id}"
+      }
     };
   }
   // 更新绑定服务的模板
@@ -892,6 +1008,10 @@ option (google.api.method_visibility).restriction = "INTERNAL";
       put: "/api/v1/config/biz/{biz_id}/apps/{app_id}/template_bindings/"
            "{binding_id}"
       body: "*"
+      additional_bindings {
+        put: "/api/v1/config/biz/{biz_id}/projects/{project_id}/apps/{app_id}/template_bindings/{binding_id}"
+        body: "*"
+      }
     };
   }
   // 按服务获取绑定的模板列表
@@ -899,6 +1019,7 @@ option (google.api.method_visibility).restriction = "INTERNAL";
     option (google.api.method_visibility).restriction = "INTERNAL";
     option (google.api.http) = {
       get: "/api/v1/config/biz/{biz_id}/apps/{app_id}/template_bindings"
+      additional_bindings { get: "/api/v1/config/biz/{biz_id}/projects/{project_id}/apps/{app_id}/template_bindings" }
     };
   }
   // 按未命名版本服务获取绑定的模板版本列表
@@ -907,6 +1028,10 @@ option (google.api.method_visibility).restriction = "INTERNAL";
     option (google.api.http) = {
       post: "/api/v1/config/biz/{biz_id}/apps/{app_id}/template_revisions"
       body: "*"
+      additional_bindings {
+        post: "/api/v1/config/biz/{biz_id}/projects/{project_id}/apps/{app_id}/template_revisions"
+        body: "*"
+      }
     };
   }
   // 按已发布版本服务获取绑定的模板版本列表
@@ -1704,8 +1829,7 @@ option (google.api.method_visibility).restriction = "INTERNAL";
   rpc CompareConfigItemConflicts(CompareConfigItemConflictsReq) returns (CompareConfigItemConflictsResp) {
     option (google.api.method_visibility).restriction = "INTERNAL";
     option (google.api.http) = {
-      get: "/api/v1/config/biz/{biz_id}/apps/{app_id}/config_items/"
-           "compare_conflicts"
+      get: "/api/v1/config/biz/{biz_id}/apps/{app_id}/config_items/compare_conflicts"
     };
   }
   // 键值服务以及和其他服务版本之间对比
@@ -3034,6 +3158,9 @@ message CreateTemplateSpaceReq {
     required: [ "name" ]
   }];
   string memo = 3 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "模板空间描述" }];
+  uint32 project_id = 4 [
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID（additional_bindings使用）" }
+  ];
 }
 
 message CreateTemplateSpaceResp {
@@ -3045,6 +3172,9 @@ message UpdateTemplateSpaceReq {
   uint32 template_space_id = 2
       [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "模板空间ID" }];
   string memo = 3 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "模板空间描述" }];
+  uint32 project_id = 4 [
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID（additional_bindings使用）" }
+  ];
 }
 
 message UpdateTemplateSpaceResp {}
@@ -3053,6 +3183,9 @@ message DeleteTemplateSpaceReq {
   uint32 biz_id = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "业务ID" }];
   uint32 template_space_id = 2
       [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "模板空间ID" }];
+  uint32 project_id = 3 [
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID（additional_bindings使用）" }
+  ];
 }
 
 message DeleteTemplateSpaceResp {}
@@ -3065,6 +3198,7 @@ message ListTemplateSpacesReq {
   uint32 limit = 5 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "每页条数" }];
   bool all = 6
       [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "是否获取所有", default: "false" }];
+  uint32 project_id = 7 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID" }];
 }
 
 message ListTemplateSpacesResp {
@@ -3078,6 +3212,7 @@ message GetAllBizsOfTmplSpacesResp {
 
 message CreateDefaultTmplSpaceReq {
   uint32 biz_id = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "业务ID" }];
+  uint32 project_id = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID" }];
 }
 
 message CreateDefaultTmplSpaceResp {
@@ -3087,10 +3222,22 @@ message CreateDefaultTmplSpaceResp {
 message ListTmplSpacesByIDsReq {
   uint32 biz_id = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "业务ID" }];
   repeated uint32 ids = 2;
+  uint32 project_id = 3 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID" }];
 }
 
 message ListTmplSpacesByIDsResp {
   repeated pbts.TemplateSpace details = 1;
+}
+
+message GetTemplateSpaceReq {
+  uint32 biz_id = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "业务ID" }];
+  uint32 template_space_id = 2
+      [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "模板空间ID" }];
+  uint32 project_id = 3 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID" }];
+}
+
+message GetTemplateSpaceResp {
+  pbts.TemplateSpace data = 1;
 }
 
 message CreateTemplateReq {
@@ -3140,6 +3287,9 @@ message CreateTemplateReq {
     (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "模板套餐ID，需要添加至某个套餐中" }
   ];
   string charset = 16 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "文件编码" }];
+  uint32 project_id = 17 [
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID（additional_bindings使用）" }
+  ];
 }
 
 message CreateTemplateResp {
@@ -3152,6 +3302,9 @@ message UpdateTemplateReq {
       [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "模板空间ID" }];
   uint32 template_id = 3 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "模板文件ID" }];
   string memo = 4 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "模板文件描述" }];
+  uint32 project_id = 5 [
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID（additional_bindings使用）" }
+  ];
 }
 
 message UpdateTemplateResp {}
@@ -3163,6 +3316,9 @@ message DeleteTemplateReq {
   uint32 template_id = 3 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "模板文件ID" }];
   bool force = 4
       [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "是否强制：是=true，否=false" }];
+  uint32 project_id = 5 [
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID（additional_bindings使用）" }
+  ];
 }
 
 message DeleteTemplateResp {}
@@ -3180,6 +3336,9 @@ message BatchDeleteTemplateReq {
     description: "是否排除操作：是=true，否=false",
     default: "false",
   }];
+  uint32 project_id = 6 [
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID（additional_bindings使用）" }
+  ];
 }
 
 message BatchDeleteTemplateResp {}
@@ -3195,6 +3354,9 @@ message ListTemplatesReq {
   repeated uint32 ids = 6;
   bool all = 7
       [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "是否获取所有", default: "false" }];
+  uint32 project_id = 8 [
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID（additional_bindings使用）" }
+  ];
 }
 
 message ListTemplatesResp {
@@ -3251,6 +3413,9 @@ message BatchUpsertTemplatesReq {
   repeated uint32 template_set_ids = 4 [
     (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "模板套餐ID，需要添加至某个套餐中" }
   ];
+  uint32 project_id = 5 [
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID（additional_bindings使用）" }
+  ];
 }
 
 message BatchUpsertTemplatesResp {
@@ -3277,6 +3442,9 @@ message BatchUpdateTemplatePermissionsReq {
   }];
   uint32 template_space_id = 10
       [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "模板空间ID" }];
+  uint32 project_id = 11 [
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID（additional_bindings使用）" }
+  ];
 }
 
 message BatchUpdateTemplatePermissionsResp {
@@ -3324,6 +3492,9 @@ message DeleteTmplsFromTmplSetsReq {
 message ListTemplatesByIDsReq {
   uint32 biz_id = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "业务ID" }];
   repeated uint32 ids = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "模板文件ID" }];
+  uint32 project_id = 3 [
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID（additional_bindings使用）" }
+  ];
 }
 
 message ListTemplatesByIDsResp {
@@ -3340,6 +3511,9 @@ message ListTemplatesNotBoundReq {
   uint32 limit = 5 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "每页条数" }];
   bool all = 6
       [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "是否获取所有", default: "false" }];
+  uint32 project_id = 7 [
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID（additional_bindings使用）" }
+  ];
 }
 
 message ListTemplateByTupleReq {
@@ -3351,6 +3525,9 @@ message ListTemplateByTupleReq {
   uint32 template_space_id = 2
       [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "模板空间ID" }];
   repeated Item items = 3;
+  uint32 project_id = 4 [
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID（additional_bindings使用）" }
+  ];
 }
 
 message ListTemplateByTupleResp {
@@ -3379,6 +3556,9 @@ message ListTmplsOfTmplSetReq {
   repeated uint32 ids = 7;
   bool all = 8
       [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "是否获取所有", default: "false" }];
+  uint32 project_id = 9 [
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID（additional_bindings使用）" }
+  ];
 }
 
 message ListTmplsOfTmplSetResp {
@@ -3390,6 +3570,9 @@ message ListTemplateSetsAndRevisionsReq {
   uint32 biz_id = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "业务ID" }];
   uint32 template_set_id = 2
       [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "模板套餐ID" }];
+  uint32 project_id = 3 [
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID（additional_bindings使用）" }
+  ];
 }
 
 message ListTemplateSetsAndRevisionsResp {
@@ -3444,6 +3627,9 @@ message CreateTemplateRevisionReq {
   string sign = 13 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "文件sha256" }];
   uint64 byte_size = 14 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "文件大小" }];
   string charset = 15 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "文件编码" }];
+  uint32 project_id = 16 [
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID（additional_bindings使用）" }
+  ];
 }
 
 message CreateTemplateRevisionResp {
@@ -3496,6 +3682,9 @@ message UpdateTemplateRevisionReq {
   uint32 template_revision_id = 15
       [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "模板文件版本ID" }];
   string charset = 16 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "文件编码" }];
+  uint32 project_id = 17 [
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID（additional_bindings使用）" }
+  ];
 }
 
 message UpdateTemplateRevisionResp {
@@ -3513,6 +3702,9 @@ message ListTemplateRevisionsReq {
   uint32 limit = 6 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "每页条数" }];
   bool all = 7
       [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "是否获取所有", default: "false" }];
+  uint32 project_id = 8 [
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID（additional_bindings使用）" }
+  ];
 }
 
 message ListTemplateRevisionsResp {
@@ -3525,6 +3717,9 @@ message GetTemplateRevisionReq {
   uint32 template_id = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "模板文件ID" }];
   string revision_name = 3
       [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "模板文件版本号" }];
+  uint32 project_id = 4 [
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID（additional_bindings使用）" }
+  ];
 }
 
 message GetTemplateRevisionResp {
@@ -3575,6 +3770,9 @@ message DeleteTemplateRevisionReq {
   uint32 template_id = 3 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "模板文件ID" }];
   uint32 template_revision_id = 4
       [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "模板文件版本ID" }];
+  uint32 project_id = 5 [
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID（additional_bindings使用）" }
+  ];
 }
 
 message DeleteTemplateRevisionResp {}
@@ -3583,6 +3781,9 @@ message ListTemplateRevisionsByIDsReq {
   uint32 biz_id = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "业务ID" }];
   repeated uint32 ids = 2
       [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "模板文件版本ID" }];
+  uint32 project_id = 3 [
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID（additional_bindings使用）" }
+  ];
 }
 
 message ListTemplateRevisionsByIDsResp {
@@ -3618,6 +3819,9 @@ message CreateTemplateSetReq {
   }];
   repeated uint32 bound_apps = 7
       [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "绑定的服务" }];
+  uint32 project_id = 8 [
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID（additional_bindings使用）" }
+  ];
 }
 
 message CreateTemplateSetResp {
@@ -3640,6 +3844,9 @@ message UpdateTemplateSetReq {
   repeated uint32 bound_apps = 8;
   bool force = 9
       [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "是否强制：是=true，否=false" }];
+  uint32 project_id = 10 [
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID（additional_bindings使用）" }
+  ];
 }
 
 message UpdateTemplateSetResp {}
@@ -3652,6 +3859,9 @@ message DeleteTemplateSetReq {
       [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "模板套餐ID" }];
   bool force = 4
       [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "是否强制：是=true，否=false" }];
+  uint32 project_id = 5 [
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID（additional_bindings使用）" }
+  ];
 }
 
 message DeleteTemplateSetResp {}
@@ -3666,6 +3876,9 @@ message ListTemplateSetsReq {
   uint32 limit = 6 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "每页条数" }];
   bool all = 7
       [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "是否获取所有", default: "false" }];
+  uint32 project_id = 8 [
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID（additional_bindings使用）" }
+  ];
 }
 
 message ListTemplateSetsResp {
@@ -3676,6 +3889,9 @@ message ListTemplateSetsResp {
 message ListAppTemplateSetsReq {
   uint32 biz_id = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "业务ID" }];
   uint32 app_id = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "服务ID" }];
+  uint32 project_id = 3 [
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID（additional_bindings使用）" }
+  ];
 }
 
 message ListAppTemplateSetsResp {
@@ -3685,6 +3901,9 @@ message ListAppTemplateSetsResp {
 message ListTemplateSetsByIDsReq {
   uint32 biz_id = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "业务ID" }];
   repeated uint32 ids = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "模板套餐ID" }];
+  uint32 project_id = 3 [
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID（additional_bindings使用）" }
+  ];
 }
 
 message ListTemplateSetsByIDsResp {
@@ -3704,6 +3923,9 @@ message CreateAppTemplateBindingReq {
   uint32 biz_id = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "业务ID" }];
   uint32 app_id = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "服务ID" }];
   repeated pbatb.TemplateBinding bindings = 3;
+  uint32 project_id = 4 [
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID（additional_bindings使用）" }
+  ];
 }
 
 message CreateAppTemplateBindingResp {
@@ -3716,6 +3938,9 @@ message UpdateAppTemplateBindingReq {
   uint32 binding_id = 3
       [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "服务绑定模板套餐后的ID" }];
   repeated pbatb.TemplateBinding bindings = 4;
+  uint32 project_id = 5 [
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID（additional_bindings使用）" }
+  ];
 }
 
 message UpdateAppTemplateBindingResp {}
@@ -3725,6 +3950,9 @@ message DeleteAppTemplateBindingReq {
   uint32 app_id = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "服务ID" }];
   uint32 binding_id = 3
       [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "服务绑定模板套餐后的ID" }];
+  uint32 project_id = 4 [
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID（additional_bindings使用）" }
+  ];
 }
 
 message DeleteAppTemplateBindingResp {}
@@ -3732,6 +3960,7 @@ message DeleteAppTemplateBindingResp {}
 message ListAppTemplateBindingsReq {
   uint32 biz_id = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "业务ID" }];
   uint32 app_id = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "服务ID" }];
+  uint32 project_id = 3 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID" }];
 }
 
 message ListAppTemplateBindingsResp {
@@ -3751,6 +3980,7 @@ message ListAppBoundTmplRevisionsReq {
   repeated string status = 5 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
     description: "模板状态：(ADD、REVISE、DELETE、UNCHANGE)"
   }];
+  uint32 project_id = 6 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID" }];
 }
 
 message ListAppBoundTmplRevisionsResp {
@@ -5071,6 +5301,9 @@ message GetLatestTemplateVersionsInSpaceReq {
   uint32 biz_id = 1;
   uint32 template_space_id = 2;
   uint32 template_id = 3;
+  uint32 project_id = 4 [
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = { description: "项目ID（additional_bindings使用）" }
+  ];
 }
 
 message GetLatestTemplateVersionsInSpaceResp {

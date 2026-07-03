@@ -161,6 +161,73 @@ func (p *proxy) routers() http.Handler {
 					})
 				})
 
+				// 模板空间相关（新路由）
+				r.Route("/template_spaces", func(r chi.Router) {
+					r.Mount("/", p.cfgSvrMux)
+					r.Mount("/list_by_ids", p.cfgSvrMux)
+					r.Route("/{template_space_id}", func(r chi.Router) {
+						r.Use(p.TemplateSpaceProjectVerified)
+						r.Mount("/", p.cfgSvrMux)
+
+						// 模板集相关（新路由，通过 template_space_id 链式校验）
+						r.Route("/template_sets", func(r chi.Router) {
+							r.Mount("/", p.cfgSvrMux)
+							r.Mount("/list_by_ids", p.cfgSvrMux)
+							r.Route("/{template_set_id}", func(r chi.Router) {
+								r.Mount("/", p.cfgSvrMux)
+							})
+							// 获取最新模板版本
+							r.Route("/templates/{template_id}/latest_template_versions", func(r chi.Router) {
+								r.Mount("/", p.cfgSvrMux)
+							})
+						})
+
+						// 模板相关（新路由）
+						r.Route("/templates", func(r chi.Router) {
+							r.Mount("/", p.cfgSvrMux)
+							r.Mount("/list", p.cfgSvrMux)
+							r.Mount("/list_by_ids", p.cfgSvrMux)
+							r.Mount("/list_not_bound", p.cfgSvrMux)
+							r.Mount("/tuple", p.cfgSvrMux)
+							r.Mount("/batch_upsert_templates", p.cfgSvrMux)
+							r.Mount("/batch_delete", p.cfgSvrMux)
+							r.Mount("/batch_update_templates_permissions", p.cfgSvrMux)
+							r.Mount("/delete_from_template_sets", p.cfgSvrMux)
+							r.Mount("/add_to_template_sets", p.cfgSvrMux)
+							r.Route("/{template_id}", func(r chi.Router) {
+								r.Mount("/", p.cfgSvrMux)
+								// 模板版本相关
+								r.Route("/template_revisions", func(r chi.Router) {
+									r.Mount("/", p.cfgSvrMux)
+									r.Mount("/list", p.cfgSvrMux)
+									r.Mount("/list_by_ids", p.cfgSvrMux)
+									r.Route("/{template_revision_id}", func(r chi.Router) {
+										r.Mount("/", p.cfgSvrMux)
+									})
+								})
+							})
+						})
+					})
+				})
+
+				// AppTemplateSet 和 AppTemplateBinding 相关（新路由）
+				r.Route("/apps/{app_id}/template_sets", func(r chi.Router) {
+					r.Mount("/", p.cfgSvrMux)
+				})
+				r.Route("/apps/{app_id}/template_bindings", func(r chi.Router) {
+					r.Mount("/", p.cfgSvrMux)
+					r.Route("/{binding_id}", func(r chi.Router) {
+						r.Mount("/", p.cfgSvrMux)
+					})
+				})
+				// 独立的模板列表接口（不含 template_space_id）
+				r.Mount("/templates/list_by_ids", p.cfgSvrMux)
+				r.Mount("/templates/not_bound", p.cfgSvrMux)
+				r.Mount("/template_revisions/list_by_ids", p.cfgSvrMux)
+				r.Mount("/template_sets/list_by_ids", p.cfgSvrMux)
+				r.Mount("/template_sets/template_revisions", p.cfgSvrMux)
+				r.Mount("/templates/{template_id}/template_revisions", p.cfgSvrMux)
+
 				r.Mount("/", p.cfgSvrMux)
 			})
 		})
@@ -185,6 +252,55 @@ func (p *proxy) routers() http.Handler {
 			r.Route("/{group_id}", func(r chi.Router) {
 				r.Use(p.GroupProjectVerified)
 				r.Mount("/", p.cfgSvrMux)
+			})
+		})
+
+		// 兼容旧版模板空间(校验 TemplateSpace 是否属于指定的项目)
+		// 旧路由使用 checkOrCreateDefaultProjectEnv 注入 ProjectID
+		r.Route("/biz/{biz_id}/template_spaces", func(r chi.Router) {
+			r.Mount("/", p.cfgSvrMux)
+			r.Mount("/list_by_ids", p.cfgSvrMux)
+			r.Route("/{template_space_id}", func(r chi.Router) {
+				r.Use(p.TemplateSpaceProjectVerified)
+				r.Mount("/", p.cfgSvrMux)
+
+				// 模板集（旧路由）
+				r.Route("/template_sets", func(r chi.Router) {
+					r.Mount("/", p.cfgSvrMux)
+					r.Mount("/list_by_ids", p.cfgSvrMux)
+					r.Route("/{template_set_id}", func(r chi.Router) {
+						r.Mount("/", p.cfgSvrMux)
+					})
+					r.Route("/templates/{template_id}/latest_template_versions", func(r chi.Router) {
+						r.Mount("/", p.cfgSvrMux)
+					})
+				})
+
+				// 模板（旧路由）
+				r.Route("/templates", func(r chi.Router) {
+					r.Mount("/", p.cfgSvrMux)
+					r.Mount("/list", p.cfgSvrMux)
+					r.Mount("/list_by_ids", p.cfgSvrMux)
+					r.Mount("/list_not_bound", p.cfgSvrMux)
+					r.Mount("/tuple", p.cfgSvrMux)
+					r.Mount("/batch_upsert_templates", p.cfgSvrMux)
+					r.Mount("/batch_delete", p.cfgSvrMux)
+					r.Mount("/batch_update_templates_permissions", p.cfgSvrMux)
+					r.Mount("/delete_from_template_sets", p.cfgSvrMux)
+					r.Mount("/add_to_template_sets", p.cfgSvrMux)
+					r.Route("/{template_id}", func(r chi.Router) {
+						r.Mount("/", p.cfgSvrMux)
+						// 模板版本（旧路由）
+						r.Route("/template_revisions", func(r chi.Router) {
+							r.Mount("/", p.cfgSvrMux)
+							r.Mount("/list", p.cfgSvrMux)
+							r.Mount("/list_by_ids", p.cfgSvrMux)
+							r.Route("/{template_revision_id}", func(r chi.Router) {
+								r.Mount("/", p.cfgSvrMux)
+							})
+						})
+					})
+				})
 			})
 		})
 

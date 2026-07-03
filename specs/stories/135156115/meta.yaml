@@ -1,0 +1,12 @@
+id: "135156115"
+workspace_id: "20451610"
+phase: initialized
+created_at: "2026-07-02T17:19:00+08:00"
+agent_tool: agent
+attempts: 0
+round: 0
+stats:
+  subagent_calls: 0
+  total_input_tokens: 0
+  total_output_tokens: 0
+  total_cost_usd: 0

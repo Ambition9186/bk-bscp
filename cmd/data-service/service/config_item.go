@@ -1647,7 +1647,8 @@ func (s *Service) handleTemplateConfig(grpcKit *kit.Kit, bizID, appID, otherAppI
 func (s *Service) getTemplateSpaceSetfile(grpcKit *kit.Kit, templateSpaceIds, templateSetIds, templateIds []uint32) (
 	map[uint32]bool, map[uint32]bool, map[string]bool, map[uint32]bool, map[uint32]bool, error) {
 	// 获取空间
-	templateSpace, err := s.dao.TemplateSpace().ListByIDs(grpcKit, templateSpaceIds)
+	// TODO: 待处理
+	templateSpace, err := s.dao.TemplateSpace().ListByIDs(grpcKit, 0, 0, templateSpaceIds)
 	if err != nil {
 		return nil, nil, nil, nil, nil, err
 	}
@@ -1718,7 +1719,8 @@ func (s *Service) getConfigTemplateSet(grpcKit *kit.Kit, bizID, appID uint32) (
 	tmplSpaceIDs = tools.RemoveDuplicates(tmplSpaceIDs)
 
 	// template space details
-	tmplSpaces, err := s.dao.TemplateSpace().ListByIDs(grpcKit, tmplSpaceIDs)
+	// TODO: 待处理
+	tmplSpaces, err := s.dao.TemplateSpace().ListByIDs(grpcKit, 0, 0, tmplSpaceIDs)
 	if err != nil {
 		logs.Errorf("list template spaces failed, err: %v, rid: %s", err, grpcKit.Rid)
 		return nil, err
